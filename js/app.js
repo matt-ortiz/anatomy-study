@@ -339,7 +339,9 @@
 
   // ---------- Home ----------
   function renderHome() {
-    const weakKeys = Object.keys(stats).filter(isWeak);
+    // Ignore saved progress for items that were since removed from the unit.
+    const known = k => LABEL_ITEMS.some(it => it.key === k) || QUESTION_BY_KEY[k] || FILL_BY_KEY[k];
+    const weakKeys = Object.keys(stats).filter(k => isWeak(k) && known(k));
     const weakNames = weakKeys.map(k => k.startsWith("L:") ? k.split(":").slice(2).join(":")
       : FILL_BY_KEY[k] ? fillBlank(FILL_BY_KEY[k]).answers[0] : null).filter(Boolean);
     const uniqueWeak = [...new Set(weakNames)];

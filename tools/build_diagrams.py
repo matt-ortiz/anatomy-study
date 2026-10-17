@@ -20,6 +20,7 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 UNITS = ["body", "skeletal"]
+GRAY = (217, 217, 217)
 
 
 def build_unit(name: str, debug: bool) -> None:
@@ -33,7 +34,13 @@ def build_unit(name: str, debug: bool) -> None:
         src = ROOT / d["source"]
         left, top, right, bottom = d["crop"]
         cw, ch = right - left, bottom - top
-        img = Image.open(src).convert("RGB").crop(d["crop"])
+        full = Image.open(src).convert("RGB")
+        # Gray boxes cover parts the teacher left off the test, just like on her slides.
+        if d.get("gray"):
+            paint = ImageDraw.Draw(full)
+            for x, y, w, h in d["gray"]:
+                paint.rectangle([x - pad, y - pad, x + w + pad, y + h + pad], fill=GRAY)
+        img = full.crop(d["crop"])
         ext = ".jpg" if src.suffix.lower() in (".jpg", ".jpeg") else ".png"
         img_path = f"images/{name}/{d['id']}{ext}"
         if ext == ".jpg":

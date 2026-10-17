@@ -135,37 +135,63 @@ DIAGRAMS = [
     {
         "id": "vertebral-column", "section": "skeleton", "title": "Vertebral column (Fig 5.14)",
         "source": "source/skeletal/vertebral-column.jpg", "crop": (90, 50, 560, 752),
+        # Teacher's gray boxes from the slide (not on the test), plus the labels they hid.
+        "gray": [
+            (145, 133, 122, 387),
+            (401, 174, 93, 34),
+            (401, 378, 102, 34),
+            (401, 570, 93, 34),
+            (395, 658, 93, 50),
+            (401, 733, 133, 34),
+            (151, 132, 106, 37),  # 2nd cervical vertebra (axis)
+            (169, 218, 90, 34),  # 1st thoracic vertebra
+            (166, 264, 84, 36),  # Transverse process
+            (167, 299, 62, 37),  # Spinous process
+            (167, 371, 98, 34),  # Intervertebral disc
+            (167, 425, 98, 33),  # Intervertebral foramen
+            (172, 486, 85, 34),  # 1st lumbar vertebra
+        ],
         "labels": [
             ("1st cervical vertebra (atlas)", (152, 86, 110, 36)),
-            ("2nd cervical vertebra (axis)", (151, 132, 106, 37)),
-            ("1st thoracic vertebra", (169, 218, 90, 34)),
-            ("Transverse process", (166, 264, 84, 36)),
-            ("Spinous process", (167, 299, 62, 37)),
-            ("Intervertebral disc", (167, 371, 98, 34)),
-            ("Intervertebral foramen", (167, 425, 98, 33)),
-            ("1st lumbar vertebra", (172, 486, 85, 34)),
-            ("Cervical curvature", (401, 138, 93, 92)),
-            ("Thoracic curvature", (399, 342, 102, 92)),
-            ("Lumbar curvature", (399, 533, 93, 92)),
-            ("Sacrum", (399, 638, 76, 72)),
-            ("Coccyx", (399, 715, 137, 36)),
+            ("Cervical curvature", (401, 138, 82, 36)),
+            ("Thoracic curvature", (399, 342, 82, 36)),
+            ("Lumbar curvature", (399, 533, 82, 36)),
+            ("Sacrum", (399, 638, 64, 16)),
+            ("Coccyx", (399, 715, 62, 16)),
         ],
     },
     {
         "id": "skull-lateral", "section": "skeleton", "title": "Skull, side view (Fig 5.7)",
         "source": "source/skeletal/skull-lateral.jpg", "crop": (20, 95, 775, 535),
+        # Teacher's gray boxes from the slide (not on the test), plus the labels they hid.
+        "gray": [
+            (21, 112, 115, 24),
+            (14, 238, 115, 35),
+            (26, 286, 143, 24),
+            (26, 354, 155, 24),
+            (26, 394, 185, 24),
+            (88, 422, 155, 24),
+            (128, 460, 115, 24),
+            (232, 511, 170, 24),
+            (640, 430, 131, 24),
+            (640, 480, 115, 24),
+            (640, 498, 115, 24),
+            (30, 116, 106, 12),  # Coronal suture
+            (30, 237, 71, 30),  # Lambdoid suture
+            (30, 293, 126, 14),  # Squamous suture
+            (30, 356, 136, 15),  # Zygomatic process
+            (31, 400, 179, 12),  # External acoustic meatus
+            (97, 428, 117, 14),  # Mastoid process
+            (128, 464, 110, 14),  # Styloid process
+            (234, 516, 128, 12),  # Mandibular ramus
+            (640, 428, 122, 15),  # Alveolar margins
+            (640, 485, 114, 14),  # Mandible (body)
+            (640, 503, 109, 12),  # Mental foramen
+        ],
         "labels": [
-            ("Coronal suture", (30, 116, 106, 12)),
             ("Parietal bone", (31, 150, 92, 11)),
             ("Temporal bone", (30, 199, 107, 14)),
-            ("Lambdoid suture", (30, 237, 71, 30)),
-            ("Squamous suture", (30, 293, 126, 14)),
             ("Occipital bone", (30, 318, 102, 14)),
-            ("Zygomatic process", (30, 356, 136, 15)),
-            ("External acoustic meatus", (31, 400, 179, 12)),
-            ("Mastoid process", (97, 428, 117, 14)),
-            ("Styloid process", (128, 464, 110, 14)),
-            ("Mandibular ramus", (234, 516, 128, 12)),
             ("Frontal bone", (640, 117, 89, 11)),
             ("Sphenoid bone", (639, 158, 107, 14)),
             ("Ethmoid bone", (640, 204, 99, 11)),
@@ -173,16 +199,26 @@ DIAGRAMS = [
             ("Nasal bone", (640, 306, 79, 12)),
             ("Zygomatic bone", (639, 349, 115, 14)),
             ("Maxilla", (640, 370, 50, 15)),
-            ("Alveolar margins", (640, 428, 122, 15)),
-            ("Mandible (body)", (640, 485, 114, 14)),
-            ("Mental foramen", (640, 503, 109, 12)),
         ],
     },
     {
         "id": "skull-anterior", "section": "skeleton", "title": "Skull, front view (Fig 5.11)",
         "source": "source/skeletal/skull-anterior.jpg", "crop": (40, 170, 600, 650),
+        # Teacher's gray boxes from the slide (not on the test), plus the labels they hid.
+        "gray": [
+            (52, 196, 112, 23),
+            (487, 318, 112, 30),
+            (487, 372, 112, 23),
+            (487, 440, 112, 168),
+            (54, 198, 106, 12),  # Coronal suture
+            (488, 318, 100, 30),  # Superior orbital fissure
+            (489, 380, 79, 14),  # Optic canal
+            (488, 441, 99, 48),  # Middle nasal concha of ethmoid bone
+            (487, 499, 92, 29),  # Inferior nasal concha
+            (488, 542, 46, 11),  # Vomer
+            (488, 573, 59, 32),  # Alveolar margins
+        ],
         "labels": [
-            ("Coronal suture", (54, 198, 106, 12)),
             ("Parietal bone", (55, 235, 92, 11)),
             ("Nasal bone", (54, 310, 79, 11)),
             ("Sphenoid bone", (54, 345, 107, 14)),
@@ -192,33 +228,34 @@ DIAGRAMS = [
             ("Maxilla", (54, 490, 49, 11)),
             ("Mandible", (54, 540, 64, 11)),
             ("Frontal bone", (489, 213, 89, 11)),
-            ("Superior orbital fissure", (488, 318, 100, 30)),
-            ("Optic canal", (489, 380, 79, 14)),
             ("Temporal bone", (488, 402, 66, 29)),
-            ("Middle nasal concha of ethmoid bone", (488, 441, 99, 48)),
-            ("Inferior nasal concha", (487, 499, 92, 29)),
-            ("Vomer", (488, 542, 46, 11)),
-            ("Alveolar margins", (488, 573, 59, 32)),
         ],
     },
     {
         "id": "skull-superior", "section": "skeleton", "title": "Skull floor, from above (Fig 5.8)",
         "source": "source/skeletal/skull-superior.jpg", "crop": (60, 100, 775, 560),
+        # Teacher's gray boxes from the slide (not on the test), plus the labels they hid.
+        "gray": [
+            (530, 206, 121, 166),
+            (65, 382, 141, 35),
+            (104, 526, 136, 22),
+            (524, 163, 121, 30),
+            (533, 162, 108, 15),  # Cribriform plate
+            (533, 182, 75, 15),  # Crista galli
+            (533, 208, 79, 15),  # Optic canal
+            (533, 257, 87, 12),  # Sella turcica
+            (534, 280, 104, 11),  # Foramen ovale
+            (533, 342, 117, 14),  # Jugular foramen
+            (74, 385, 117, 29),  # Internal acoustic meatus
+            (107, 530, 129, 15),  # Foramen magnum
+        ],
         "labels": [
             ("Frontal bone", (534, 123, 89, 12)),
-            ("Cribriform plate", (533, 162, 108, 15)),
-            ("Crista galli", (533, 182, 75, 15)),
             ("Ethmoid bone", (660, 170, 62, 32)),
-            ("Optic canal", (533, 208, 79, 15)),
-            ("Sella turcica", (533, 257, 87, 12)),
-            ("Foramen ovale", (534, 280, 104, 11)),
-            ("Jugular foramen", (533, 342, 117, 14)),
             ("Sphenoid bone", (74, 193, 67, 30)),
             ("Temporal bone", (74, 310, 107, 14)),
-            ("Internal acoustic meatus", (74, 385, 117, 29)),
             ("Parietal bone", (75, 451, 93, 12)),
             ("Occipital bone", (74, 491, 102, 15)),
-            ("Foramen magnum", (107, 530, 129, 15)),
         ],
     },
     {
@@ -236,17 +273,15 @@ DIAGRAMS = [
         ],
     },
     {
-        "id": "hyoid", "section": "skeleton", "title": "Hyoid bone (Fig 5.12)",
-        "source": "source/skeletal/hyoid.jpg", "crop": (230, 80, 600, 540),
-        "labels": [
-            ("Greater horn", (511, 339, 55, 32)),
-            ("Lesser horn", (511, 467, 50, 32)),
-            ("Body (of hyoid)", (511, 515, 38, 16)),
-        ],
-    },
-    {
         "id": "fetal-skull", "section": "skeleton", "title": "Fetal skull (Fig 5.13)",
         "source": "source/skeletal/fetal-skull.jpg", "crop": (90, 90, 560, 690),
+        # Teacher's gray boxes from the slide (not on the test), plus the labels they hid.
+        "gray": [
+            (137, 590, 68, 40),
+            (428, 430, 85, 40),
+            (429, 434, 82, 30),  # Sphenoidal fontanel
+            (145, 592, 58, 30),  # Mastoid fontanel
+        ],
         "labels": [
             ("Frontal bone", (162, 147, 90, 12)),
             ("Anterior fontanel", (453, 149, 60, 30)),
@@ -254,128 +289,143 @@ DIAGRAMS = [
             ("Posterior fontanel", (162, 316, 127, 12)),
             ("Occipital bone", (452, 331, 63, 31)),
             ("Anterior fontanel", (316, 416, 120, 12)),
-            ("Sphenoidal fontanel", (429, 434, 82, 30)),
             ("Parietal bone", (143, 451, 93, 12)),
             ("Posterior fontanel", (120, 489, 67, 30)),
             ("Frontal bone", (477, 494, 50, 30)),
             ("Occipital bone", (112, 550, 63, 31)),
-            ("Mastoid fontanel", (145, 592, 58, 30)),
             ("Temporal bone", (267, 649, 107, 15)),
         ],
     },
     {
         "id": "thorax", "section": "skeleton", "title": "Bony thorax (Fig 5.19a)",
         "source": "source/skeletal/thorax.png", "crop": (30, 75, 700, 575),
+        # Teacher's gray boxes from the slide (not on the test), plus the labels they hid.
+        "gray": [
+            (332, 68, 154, 76),
+            (412, 164, 83, 21),
+            (412, 185, 95, 34),
+            (412, 219, 88, 40),
+            (412, 258, 57, 40),
+            (400, 486, 83, 40),
+            (350, 531, 113, 40),
+            (332, 88, 80, 17),  # T1 vertebra
+            (347, 107, 99, 16),  # Jugular notch
+            (361, 127, 117, 13),  # Clavicular notch
+            (413, 162, 81, 13),  # Manubrium
+            (412, 183, 95, 16),  # Sternal angle
+            (413, 204, 38, 16),  # Body (of sternum)
+            (412, 222, 87, 34),  # Xiphisternal joint
+            (412, 257, 59, 34),  # Xiphoid process
+            (405, 489, 76, 35),  # Intercostal spaces
+            (349, 535, 113, 16),  # Costal cartilage
+        ],
         "labels": [
-            ("T1 vertebra", (332, 88, 80, 17)),
-            ("Jugular notch", (347, 107, 99, 16)),
-            ("Clavicular notch", (361, 127, 117, 13)),
-            ("Manubrium", (413, 162, 81, 13)),
-            ("Sternal angle", (412, 183, 95, 16)),
-            ("Body (of sternum)", (413, 204, 38, 16)),
-            ("Xiphisternal joint", (412, 222, 87, 34)),
-            ("Xiphoid process", (412, 257, 59, 34)),
             ("Sternum", (524, 215, 61, 13)),
             ("True ribs (1–7)", (39, 240, 37, 53)),
             ("False ribs (8–12)", (40, 438, 44, 53)),
             ("Floating ribs (11, 12)", (177, 519, 59, 53)),
             ("L1 vertebra", (237, 462, 64, 30)),
-            ("Intercostal spaces", (405, 489, 76, 35)),
-            ("Costal cartilage", (349, 535, 113, 16)),
         ],
     },
     {
         "id": "shoulder-girdle", "section": "skeleton", "title": "Shoulder (pectoral) girdle (Fig 5.20)",
         "source": "source/skeletal/shoulder-girdle.jpg", "crop": (15, 70, 760, 570),
+        # Teacher's gray boxes from the slide (not on the test), plus the labels they hid.
+        "gray": [
+            (186, 126, 75, 64),
+            (435, 77, 332, 386),
+            (186, 137, 72, 53),  # Acromioclavicular joint
+            (633, 94, 111, 34),  # Medial (sternal) end
+            (435, 187, 126, 34),  # Lateral (acromial) end
+            (650, 262, 83, 13),  # Sternal end
+            (435, 278, 96, 13),  # Acromial end
+        ],
         "labels": [
-            ("Acromioclavicular joint", (186, 137, 72, 53)),
             ("Clavicle", (264, 154, 58, 13)),
             ("Scapula", (105, 396, 59, 16)),
-            ("Medial (sternal) end", (633, 94, 111, 34)),
-            ("Lateral (acromial) end", (435, 187, 126, 34)),
-            ("Sternal end", (650, 262, 83, 13)),
-            ("Acromial end", (435, 278, 96, 13)),
-        ],
-    },
-    {
-        "id": "humerus", "section": "skeleton", "title": "Humerus (Fig 5.21a–b)",
-        "source": "source/skeletal/humerus.jpg", "crop": (40, 50, 580, 755),
-        "labels": [
-            ("Head of humerus", (267, 62, 64, 33)),
-            ("Greater tubercle", (55, 78, 61, 33)),
-            ("Lesser tubercle", (56, 129, 60, 33)),
-            ("Anatomical neck", (254, 155, 82, 34)),
-            ("Intertubercular groove", (236, 190, 107, 35)),
-            ("Radial groove", (296, 306, 54, 35)),
-            ("Deltoid tuberosity", (55, 357, 74, 35)),
-            ("Deltoid tuberosity", (295, 358, 74, 35)),
-            ("Radial fossa", (56, 618, 45, 33)),
-            ("Coronoid fossa", (55, 662, 68, 33)),
-            ("Capitulum", (55, 716, 75, 16)),
-            ("Medial epicondyle", (254, 622, 80, 34)),
-            ("Trochlea", (249, 721, 64, 14)),
-            ("Olecranon fossa", (447, 634, 75, 33)),
-            ("Lateral epicondyle", (446, 705, 80, 35)),
         ],
     },
     {
         "id": "radius-ulna", "section": "skeleton", "title": "Radius and ulna (Fig 5.21c)",
         "source": "source/skeletal/radius-ulna.jpg", "crop": (100, 60, 520, 712),
+        # Teacher's gray boxes from the slide (not on the test), plus the labels they hid.
+        "gray": [
+            (205, 139, 95, 110),
+            (397, 72, 80, 188),
+            (397, 409, 80, 53),
+            (220, 636, 66, 58),
+            (419, 617, 66, 58),
+            (344, 659, 84, 53),
+            (400, 75, 70, 33),  # Trochlear notch
+            (403, 112, 75, 35),  # Olecranon process
+            (403, 149, 68, 36),  # Coronoid process
+            (227, 148, 37, 14),  # Head (of radius)
+            (227, 178, 37, 14),  # Neck (of radius)
+            (225, 204, 75, 35),  # Radial tuberosity
+            (397, 197, 75, 53),  # Proximal radioulnar joint
+            (400, 410, 77, 50),  # Interosseous membrane
+            (424, 622, 58, 52),  # Styloid process of ulna
+            (222, 641, 66, 52),  # Styloid process of radius
+            (349, 659, 75, 53),  # Distal radioulnar joint
+        ],
         "labels": [
-            ("Trochlear notch", (400, 75, 70, 33)),
-            ("Olecranon process", (403, 112, 75, 35)),
-            ("Coronoid process", (403, 149, 68, 36)),
-            ("Head (of radius)", (227, 148, 37, 14)),
-            ("Neck (of radius)", (227, 178, 37, 14)),
-            ("Radial tuberosity", (225, 204, 75, 35)),
-            ("Proximal radioulnar joint", (397, 197, 75, 53)),
             ("Radius", (226, 270, 51, 14)),
             ("Ulna", (415, 351, 33, 14)),
-            ("Interosseous membrane", (400, 410, 77, 50)),
-            ("Styloid process of ulna", (424, 622, 58, 52)),
-            ("Styloid process of radius", (222, 641, 66, 52)),
-            ("Distal radioulnar joint", (349, 659, 75, 53)),
         ],
     },
     {
         "id": "hand", "section": "skeleton", "title": "Bones of the hand (Fig 5.22)",
         "source": "source/skeletal/hand.jpg", "crop": (180, 95, 620, 545),
+        # Teacher's gray boxes from the slide (not on the test), plus the labels they hid.
+        "gray": [
+            (286, 238, 49, 41),
+            (286, 286, 63, 26),
+            (316, 412, 57, 73),
+            (510, 415, 82, 88),
+            (288, 239, 39, 14),  # Distal phalanx
+            (287, 264, 47, 13),  # Middle phalanx
+            (288, 301, 61, 14),  # Proximal phalanx
+            (316, 412, 55, 14),  # Hamate
+            (316, 431, 60, 15),  # Pisiform
+            (315, 450, 70, 16),  # Triquetral
+            (316, 471, 50, 14),  # Lunate
+            (511, 421, 72, 16),  # Trapezoid
+            (511, 443, 76, 16),  # Trapezium
+            (512, 465, 68, 16),  # Scaphoid
+            (512, 486, 60, 16),  # Capitate
+        ],
         "labels": [
             ("Phalanges (fingers)", (202, 269, 73, 34)),
-            ("Distal phalanx", (288, 239, 39, 14)),
-            ("Middle phalanx", (287, 264, 47, 13)),
-            ("Proximal phalanx", (288, 301, 61, 14)),
             ("Metacarpals (palm)", (202, 366, 89, 34)),
             ("Carpals (wrist)", (203, 440, 57, 34)),
-            ("Hamate", (316, 412, 55, 14)),
-            ("Pisiform", (316, 431, 60, 15)),
-            ("Triquetral", (315, 450, 70, 16)),
-            ("Lunate", (316, 471, 50, 14)),
             ("Ulna", (315, 493, 34, 13)),
-            ("Trapezoid", (511, 421, 72, 16)),
-            ("Trapezium", (511, 443, 76, 16)),
-            ("Scaphoid", (512, 465, 68, 16)),
-            ("Capitate", (512, 486, 60, 16)),
             ("Radius", (442, 521, 51, 13)),
         ],
     },
     {
         "id": "pelvis", "section": "skeleton", "title": "The pelvis (Fig 5.23a)",
         "source": "source/skeletal/pelvis.jpg", "crop": (10, 70, 770, 500),
+        # Teacher's gray boxes from the slide (not on the test), plus the labels they hid.
+        "gray": [
+            (643, 158, 75, 74),
+            (643, 316, 94, 85),
+            (363, 481, 79, 29),
+            (28, 301, 99, 44),
+            (27, 305, 94, 35),  # Coxal bone (hip bone)
+            (641, 163, 72, 14),  # Iliac crest
+            (642, 192, 72, 35),  # Sacroiliac joint
+            (642, 321, 81, 14),  # Pelvic brim
+            (641, 345, 91, 16),  # Ischial spine
+            (641, 383, 87, 14),  # Acetabulum
+            (362, 481, 78, 14),  # Pubic arch
+        ],
         "labels": [
-            ("Coxal bone (hip bone)", (27, 305, 94, 35)),
             ("Ilium", (139, 281, 45, 14)),
             ("Pubic bone", (142, 361, 92, 14)),
             ("Ischium", (144, 421, 66, 14)),
             ("Coccyx", (141, 464, 55, 16)),
             ("Sacrum", (312, 327, 52, 15)),
-            ("Iliac crest", (641, 163, 72, 14)),
-            ("Sacroiliac joint", (642, 192, 72, 35)),
-            ("Pelvic brim", (642, 321, 81, 14)),
-            ("Ischial spine", (641, 345, 91, 16)),
-            ("Acetabulum", (641, 383, 87, 14)),
             ("Pubic symphysis", (641, 423, 79, 35)),
-            ("Pubic arch", (362, 481, 78, 14)),
         ],
     },
 

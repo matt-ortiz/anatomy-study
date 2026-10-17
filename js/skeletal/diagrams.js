@@ -664,88 +664,39 @@ window.DIAGRAMS = [
         "h": 5.98
       },
       {
-        "term": "2nd cervical vertebra (axis)",
-        "x": 12.34,
-        "y": 11.25,
-        "w": 23.83,
-        "h": 6.13
-      },
-      {
-        "term": "1st thoracic vertebra",
-        "x": 16.17,
-        "y": 23.5,
-        "w": 20.43,
-        "h": 5.7
-      },
-      {
-        "term": "Transverse process",
-        "x": 15.53,
-        "y": 30.06,
-        "w": 19.15,
-        "h": 5.98
-      },
-      {
-        "term": "Spinous process",
-        "x": 15.74,
-        "y": 35.04,
-        "w": 14.47,
-        "h": 6.13
-      },
-      {
-        "term": "Intervertebral disc",
-        "x": 15.74,
-        "y": 45.3,
-        "w": 22.13,
-        "h": 5.7
-      },
-      {
-        "term": "Intervertebral foramen",
-        "x": 15.74,
-        "y": 52.99,
-        "w": 22.13,
-        "h": 5.56
-      },
-      {
-        "term": "1st lumbar vertebra",
-        "x": 16.81,
-        "y": 61.68,
-        "w": 19.36,
-        "h": 5.7
-      },
-      {
         "term": "Cervical curvature",
         "x": 65.53,
         "y": 12.11,
-        "w": 21.06,
-        "h": 13.96
+        "w": 18.72,
+        "h": 5.98
       },
       {
         "term": "Thoracic curvature",
         "x": 65.11,
         "y": 41.17,
-        "w": 22.98,
-        "h": 13.96
+        "w": 18.72,
+        "h": 5.98
       },
       {
         "term": "Lumbar curvature",
         "x": 65.11,
         "y": 68.38,
-        "w": 21.06,
-        "h": 13.96
+        "w": 18.72,
+        "h": 5.98
       },
       {
         "term": "Sacrum",
         "x": 65.11,
         "y": 83.33,
-        "w": 17.45,
-        "h": 11.11
+        "w": 14.89,
+        "h": 3.13
       },
       {
         "term": "Coccyx",
         "x": 65.11,
         "y": 94.3,
-        "w": 30.43,
-        "h": 5.7
+        "w": 14.47,
+        "h": 3.13
       }
     ]
   },
@@ -759,13 +710,6 @@ window.DIAGRAMS = [
     "height": 440,
     "fontPx": 13,
     "labels": [
-      {
-        "term": "Coronal suture",
-        "x": 0.93,
-        "y": 4.09,
-        "w": 14.83,
-        "h": 4.09
-      },
       {
         "term": "Parietal bone",
         "x": 1.06,
@@ -781,60 +725,11 @@ window.DIAGRAMS = [
         "h": 4.55
       },
       {
-        "term": "Lambdoid suture",
-        "x": 0.93,
-        "y": 31.59,
-        "w": 10.2,
-        "h": 8.18
-      },
-      {
-        "term": "Squamous suture",
-        "x": 0.93,
-        "y": 44.32,
-        "w": 17.48,
-        "h": 4.55
-      },
-      {
         "term": "Occipital bone",
         "x": 0.93,
         "y": 50.0,
         "w": 14.3,
         "h": 4.55
-      },
-      {
-        "term": "Zygomatic process",
-        "x": 0.93,
-        "y": 58.64,
-        "w": 18.81,
-        "h": 4.77
-      },
-      {
-        "term": "External acoustic meatus",
-        "x": 1.06,
-        "y": 68.64,
-        "w": 24.5,
-        "h": 4.09
-      },
-      {
-        "term": "Mastoid process",
-        "x": 9.8,
-        "y": 75.0,
-        "w": 16.29,
-        "h": 4.55
-      },
-      {
-        "term": "Styloid process",
-        "x": 13.91,
-        "y": 83.18,
-        "w": 15.36,
-        "h": 4.55
-      },
-      {
-        "term": "Mandibular ramus",
-        "x": 27.95,
-        "y": 95.0,
-        "w": 17.75,
-        "h": 4.09
       },
       {
         "term": "Frontal bone",
@@ -884,27 +779,6 @@ window.DIAGRAMS = [
         "y": 61.82,
         "w": 7.42,
         "h": 4.77
-      },
-      {
-        "term": "Alveolar margins",
-        "x": 81.72,
-        "y": 75.0,
-        "w": 16.95,
-        "h": 4.77
-      },
-      {
-        "term": "Mandible (body)",
-        "x": 81.72,
-        "y": 87.95,
-        "w": 15.89,
-        "h": 4.55
-      },
-      {
-        "term": "Mental foramen",
-        "x": 81.72,
-        "y": 92.05,
-        "w": 15.23,
-        "h": 4.09
       }
     ]
   },
@@ -918,13 +792,6 @@ window.DIAGRAMS = [
     "height": 480,
     "fontPx": 13,
     "labels": [
-      {
-        "term": "Coronal suture",
-        "x": 1.96,
-        "y": 5.21,
-        "w": 20.0,
-        "h": 3.75
-      },
       {
         "term": "Parietal bone",
         "x": 2.14,
@@ -989,53 +856,11 @@ window.DIAGRAMS = [
         "h": 3.54
       },
       {
-        "term": "Superior orbital fissure",
-        "x": 79.46,
-        "y": 30.21,
-        "w": 18.93,
-        "h": 7.5
-      },
-      {
-        "term": "Optic canal",
-        "x": 79.64,
-        "y": 43.12,
-        "w": 15.18,
-        "h": 4.17
-      },
-      {
         "term": "Temporal bone",
         "x": 79.46,
         "y": 47.71,
         "w": 12.86,
         "h": 7.29
-      },
-      {
-        "term": "Middle nasal concha of ethmoid bone",
-        "x": 79.46,
-        "y": 55.83,
-        "w": 18.75,
-        "h": 11.25
-      },
-      {
-        "term": "Inferior nasal concha",
-        "x": 79.29,
-        "y": 67.92,
-        "w": 17.5,
-        "h": 7.29
-      },
-      {
-        "term": "Vomer",
-        "x": 79.46,
-        "y": 76.88,
-        "w": 9.29,
-        "h": 3.54
-      },
-      {
-        "term": "Alveolar margins",
-        "x": 79.46,
-        "y": 83.33,
-        "w": 11.61,
-        "h": 7.92
       }
     ]
   },
@@ -1057,53 +882,11 @@ window.DIAGRAMS = [
         "h": 3.91
       },
       {
-        "term": "Cribriform plate",
-        "x": 65.73,
-        "y": 12.83,
-        "w": 15.94,
-        "h": 4.57
-      },
-      {
-        "term": "Crista galli",
-        "x": 65.73,
-        "y": 17.17,
-        "w": 11.33,
-        "h": 4.57
-      },
-      {
         "term": "Ethmoid bone",
         "x": 83.5,
         "y": 14.57,
         "w": 9.51,
         "h": 8.26
-      },
-      {
-        "term": "Optic canal",
-        "x": 65.73,
-        "y": 22.83,
-        "w": 11.89,
-        "h": 4.57
-      },
-      {
-        "term": "Sella turcica",
-        "x": 65.73,
-        "y": 33.48,
-        "w": 13.01,
-        "h": 3.91
-      },
-      {
-        "term": "Foramen ovale",
-        "x": 65.87,
-        "y": 38.48,
-        "w": 15.38,
-        "h": 3.7
-      },
-      {
-        "term": "Jugular foramen",
-        "x": 65.73,
-        "y": 51.96,
-        "w": 17.2,
-        "h": 4.35
       },
       {
         "term": "Sphenoid bone",
@@ -1120,13 +903,6 @@ window.DIAGRAMS = [
         "h": 4.35
       },
       {
-        "term": "Internal acoustic meatus",
-        "x": 1.54,
-        "y": 61.3,
-        "w": 17.2,
-        "h": 7.61
-      },
-      {
         "term": "Parietal bone",
         "x": 1.68,
         "y": 75.65,
@@ -1138,13 +914,6 @@ window.DIAGRAMS = [
         "x": 1.54,
         "y": 84.35,
         "w": 15.1,
-        "h": 4.57
-      },
-      {
-        "term": "Foramen magnum",
-        "x": 6.15,
-        "y": 92.83,
-        "w": 18.88,
         "h": 4.57
       }
     ]
@@ -1218,39 +987,6 @@ window.DIAGRAMS = [
     ]
   },
   {
-    "id": "hyoid",
-    "title": "Hyoid bone (Fig 5.12)",
-    "section": "skeleton",
-    "noun": "label",
-    "image": "images/skeletal/hyoid.jpg",
-    "width": 370,
-    "height": 460,
-    "fontPx": 13,
-    "labels": [
-      {
-        "term": "Greater horn",
-        "x": 75.14,
-        "y": 55.65,
-        "w": 16.49,
-        "h": 8.26
-      },
-      {
-        "term": "Lesser horn",
-        "x": 75.14,
-        "y": 83.48,
-        "w": 15.14,
-        "h": 8.26
-      },
-      {
-        "term": "Body (of hyoid)",
-        "x": 75.14,
-        "y": 93.91,
-        "w": 11.89,
-        "h": 4.78
-      }
-    ]
-  },
-  {
     "id": "fetal-skull",
     "title": "Fetal skull (Fig 5.13)",
     "section": "skeleton",
@@ -1303,13 +1039,6 @@ window.DIAGRAMS = [
         "h": 3.0
       },
       {
-        "term": "Sphenoidal fontanel",
-        "x": 71.49,
-        "y": 56.83,
-        "w": 18.72,
-        "h": 6.0
-      },
-      {
         "term": "Parietal bone",
         "x": 10.64,
         "y": 59.67,
@@ -1338,13 +1067,6 @@ window.DIAGRAMS = [
         "h": 6.17
       },
       {
-        "term": "Mastoid fontanel",
-        "x": 11.06,
-        "y": 83.17,
-        "w": 13.62,
-        "h": 6.0
-      },
-      {
         "term": "Temporal bone",
         "x": 37.02,
         "y": 92.67,
@@ -1363,62 +1085,6 @@ window.DIAGRAMS = [
     "height": 500,
     "fontPx": 13,
     "labels": [
-      {
-        "term": "T1 vertebra",
-        "x": 44.63,
-        "y": 2.0,
-        "w": 12.84,
-        "h": 4.6
-      },
-      {
-        "term": "Jugular notch",
-        "x": 46.87,
-        "y": 5.8,
-        "w": 15.67,
-        "h": 4.4
-      },
-      {
-        "term": "Clavicular notch",
-        "x": 48.96,
-        "y": 9.8,
-        "w": 18.36,
-        "h": 3.8
-      },
-      {
-        "term": "Manubrium",
-        "x": 56.72,
-        "y": 16.8,
-        "w": 12.99,
-        "h": 3.8
-      },
-      {
-        "term": "Sternal angle",
-        "x": 56.57,
-        "y": 21.0,
-        "w": 15.07,
-        "h": 4.4
-      },
-      {
-        "term": "Body (of sternum)",
-        "x": 56.72,
-        "y": 25.2,
-        "w": 6.57,
-        "h": 4.4
-      },
-      {
-        "term": "Xiphisternal joint",
-        "x": 56.57,
-        "y": 28.8,
-        "w": 13.88,
-        "h": 8.0
-      },
-      {
-        "term": "Xiphoid process",
-        "x": 56.57,
-        "y": 35.8,
-        "w": 9.7,
-        "h": 8.0
-      },
       {
         "term": "Sternum",
         "x": 73.28,
@@ -1453,20 +1119,6 @@ window.DIAGRAMS = [
         "y": 76.8,
         "w": 10.45,
         "h": 7.2
-      },
-      {
-        "term": "Intercostal spaces",
-        "x": 55.52,
-        "y": 82.2,
-        "w": 12.24,
-        "h": 8.2
-      },
-      {
-        "term": "Costal cartilage",
-        "x": 47.16,
-        "y": 91.4,
-        "w": 17.76,
-        "h": 4.4
       }
     ]
   },
@@ -1481,13 +1133,6 @@ window.DIAGRAMS = [
     "fontPx": 13,
     "labels": [
       {
-        "term": "Acromioclavicular joint",
-        "x": 22.55,
-        "y": 12.8,
-        "w": 10.47,
-        "h": 11.8
-      },
-      {
         "term": "Clavicle",
         "x": 33.02,
         "y": 16.2,
@@ -1500,151 +1145,6 @@ window.DIAGRAMS = [
         "y": 64.6,
         "w": 8.72,
         "h": 4.4
-      },
-      {
-        "term": "Medial (sternal) end",
-        "x": 82.55,
-        "y": 4.2,
-        "w": 15.7,
-        "h": 8.0
-      },
-      {
-        "term": "Lateral (acromial) end",
-        "x": 55.97,
-        "y": 22.8,
-        "w": 17.72,
-        "h": 8.0
-      },
-      {
-        "term": "Sternal end",
-        "x": 84.83,
-        "y": 37.8,
-        "w": 11.95,
-        "h": 3.8
-      },
-      {
-        "term": "Acromial end",
-        "x": 55.97,
-        "y": 41.0,
-        "w": 13.69,
-        "h": 3.8
-      }
-    ]
-  },
-  {
-    "id": "humerus",
-    "title": "Humerus (Fig 5.21a–b)",
-    "section": "skeleton",
-    "noun": "label",
-    "image": "images/skeletal/humerus.jpg",
-    "width": 540,
-    "height": 705,
-    "fontPx": 13,
-    "labels": [
-      {
-        "term": "Head of humerus",
-        "x": 41.48,
-        "y": 1.28,
-        "w": 12.96,
-        "h": 5.53
-      },
-      {
-        "term": "Greater tubercle",
-        "x": 2.22,
-        "y": 3.55,
-        "w": 12.41,
-        "h": 5.53
-      },
-      {
-        "term": "Lesser tubercle",
-        "x": 2.41,
-        "y": 10.78,
-        "w": 12.22,
-        "h": 5.53
-      },
-      {
-        "term": "Anatomical neck",
-        "x": 39.07,
-        "y": 14.47,
-        "w": 16.3,
-        "h": 5.67
-      },
-      {
-        "term": "Intertubercular groove",
-        "x": 35.74,
-        "y": 19.43,
-        "w": 20.93,
-        "h": 5.82
-      },
-      {
-        "term": "Radial groove",
-        "x": 46.85,
-        "y": 35.89,
-        "w": 11.11,
-        "h": 5.82
-      },
-      {
-        "term": "Deltoid tuberosity",
-        "x": 2.22,
-        "y": 43.12,
-        "w": 14.81,
-        "h": 5.82
-      },
-      {
-        "term": "Deltoid tuberosity",
-        "x": 46.67,
-        "y": 43.26,
-        "w": 14.81,
-        "h": 5.82
-      },
-      {
-        "term": "Radial fossa",
-        "x": 2.41,
-        "y": 80.14,
-        "w": 9.44,
-        "h": 5.53
-      },
-      {
-        "term": "Coronoid fossa",
-        "x": 2.22,
-        "y": 86.38,
-        "w": 13.7,
-        "h": 5.53
-      },
-      {
-        "term": "Capitulum",
-        "x": 2.22,
-        "y": 94.04,
-        "w": 15.0,
-        "h": 3.12
-      },
-      {
-        "term": "Medial epicondyle",
-        "x": 39.07,
-        "y": 80.71,
-        "w": 15.93,
-        "h": 5.67
-      },
-      {
-        "term": "Trochlea",
-        "x": 38.15,
-        "y": 94.75,
-        "w": 12.96,
-        "h": 2.84
-      },
-      {
-        "term": "Olecranon fossa",
-        "x": 74.81,
-        "y": 82.41,
-        "w": 15.0,
-        "h": 5.53
-      },
-      {
-        "term": "Lateral epicondyle",
-        "x": 74.63,
-        "y": 92.48,
-        "w": 15.93,
-        "h": 5.82
       }
     ]
   },
@@ -1659,55 +1159,6 @@ window.DIAGRAMS = [
     "fontPx": 13,
     "labels": [
       {
-        "term": "Trochlear notch",
-        "x": 70.71,
-        "y": 1.84,
-        "w": 18.1,
-        "h": 5.98
-      },
-      {
-        "term": "Olecranon process",
-        "x": 71.43,
-        "y": 7.52,
-        "w": 19.29,
-        "h": 6.29
-      },
-      {
-        "term": "Coronoid process",
-        "x": 71.43,
-        "y": 13.19,
-        "w": 17.62,
-        "h": 6.44
-      },
-      {
-        "term": "Head (of radius)",
-        "x": 29.52,
-        "y": 13.04,
-        "w": 10.24,
-        "h": 3.07
-      },
-      {
-        "term": "Neck (of radius)",
-        "x": 29.52,
-        "y": 17.64,
-        "w": 10.24,
-        "h": 3.07
-      },
-      {
-        "term": "Radial tuberosity",
-        "x": 29.05,
-        "y": 21.63,
-        "w": 19.29,
-        "h": 6.29
-      },
-      {
-        "term": "Proximal radioulnar joint",
-        "x": 70.0,
-        "y": 20.55,
-        "w": 19.29,
-        "h": 9.05
-      },
-      {
         "term": "Radius",
         "x": 29.29,
         "y": 31.75,
@@ -1720,34 +1171,6 @@ window.DIAGRAMS = [
         "y": 44.17,
         "w": 9.29,
         "h": 3.07
-      },
-      {
-        "term": "Interosseous membrane",
-        "x": 70.71,
-        "y": 53.22,
-        "w": 19.76,
-        "h": 8.59
-      },
-      {
-        "term": "Styloid process of ulna",
-        "x": 76.43,
-        "y": 85.74,
-        "w": 15.24,
-        "h": 8.9
-      },
-      {
-        "term": "Styloid process of radius",
-        "x": 28.33,
-        "y": 88.65,
-        "w": 17.14,
-        "h": 8.9
-      },
-      {
-        "term": "Distal radioulnar joint",
-        "x": 58.57,
-        "y": 91.41,
-        "w": 19.29,
-        "h": 8.59
       }
     ]
   },
@@ -1769,27 +1192,6 @@ window.DIAGRAMS = [
         "h": 8.89
       },
       {
-        "term": "Distal phalanx",
-        "x": 23.86,
-        "y": 31.33,
-        "w": 10.23,
-        "h": 4.44
-      },
-      {
-        "term": "Middle phalanx",
-        "x": 23.64,
-        "y": 36.89,
-        "w": 12.05,
-        "h": 4.22
-      },
-      {
-        "term": "Proximal phalanx",
-        "x": 23.86,
-        "y": 45.11,
-        "w": 15.23,
-        "h": 4.44
-      },
-      {
         "term": "Metacarpals (palm)",
         "x": 4.32,
         "y": 59.56,
@@ -1804,67 +1206,11 @@ window.DIAGRAMS = [
         "h": 8.89
       },
       {
-        "term": "Hamate",
-        "x": 30.23,
-        "y": 69.78,
-        "w": 13.86,
-        "h": 4.44
-      },
-      {
-        "term": "Pisiform",
-        "x": 30.23,
-        "y": 74.0,
-        "w": 15.0,
-        "h": 4.67
-      },
-      {
-        "term": "Triquetral",
-        "x": 30.0,
-        "y": 78.22,
-        "w": 17.27,
-        "h": 4.89
-      },
-      {
-        "term": "Lunate",
-        "x": 30.23,
-        "y": 82.89,
-        "w": 12.73,
-        "h": 4.44
-      },
-      {
         "term": "Ulna",
         "x": 30.0,
         "y": 87.78,
         "w": 9.09,
         "h": 4.22
-      },
-      {
-        "term": "Trapezoid",
-        "x": 74.55,
-        "y": 71.78,
-        "w": 17.73,
-        "h": 4.89
-      },
-      {
-        "term": "Trapezium",
-        "x": 74.55,
-        "y": 76.67,
-        "w": 18.64,
-        "h": 4.89
-      },
-      {
-        "term": "Scaphoid",
-        "x": 74.77,
-        "y": 81.56,
-        "w": 16.82,
-        "h": 4.89
-      },
-      {
-        "term": "Capitate",
-        "x": 74.77,
-        "y": 86.22,
-        "w": 15.0,
-        "h": 4.89
       },
       {
         "term": "Radius",
@@ -1885,13 +1231,6 @@ window.DIAGRAMS = [
     "height": 430,
     "fontPx": 13,
     "labels": [
-      {
-        "term": "Coxal bone (hip bone)",
-        "x": 1.84,
-        "y": 53.95,
-        "w": 13.16,
-        "h": 9.53
-      },
       {
         "term": "Ilium",
         "x": 16.58,
@@ -1928,53 +1267,11 @@ window.DIAGRAMS = [
         "h": 4.88
       },
       {
-        "term": "Iliac crest",
-        "x": 82.63,
-        "y": 20.93,
-        "w": 10.26,
-        "h": 4.65
-      },
-      {
-        "term": "Sacroiliac joint",
-        "x": 82.76,
-        "y": 27.67,
-        "w": 10.26,
-        "h": 9.53
-      },
-      {
-        "term": "Pelvic brim",
-        "x": 82.76,
-        "y": 57.67,
-        "w": 11.45,
-        "h": 4.65
-      },
-      {
-        "term": "Ischial spine",
-        "x": 82.63,
-        "y": 63.26,
-        "w": 12.76,
-        "h": 5.12
-      },
-      {
-        "term": "Acetabulum",
-        "x": 82.63,
-        "y": 72.09,
-        "w": 12.24,
-        "h": 4.65
-      },
-      {
         "term": "Pubic symphysis",
         "x": 82.63,
         "y": 81.4,
         "w": 11.18,
         "h": 9.53
-      },
-      {
-        "term": "Pubic arch",
-        "x": 45.92,
-        "y": 94.88,
-        "w": 11.05,
-        "h": 4.65
       }
     ]
   },

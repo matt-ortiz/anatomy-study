@@ -5,7 +5,7 @@ A static study site for AP Biology anatomy units. It has no build step and no se
 ## Units
 | Page | Covers |
 |---|---|
-| `skeletal.html` | **Skeletal System**: bone structure, bone shapes, microscopic bone, fractures and repair, the skeleton, spine, skull, sinuses, rib cage, limbs, pelvis, joint classes, synovial joints and the knee (24 diagrams, about 150 concept questions) |
+| `skeletal.html` | **Skeletal System**: bone structure, bone shapes, microscopic bone, fractures and repair, the skeleton, spine, skull, sinuses, rib cage, limbs, pelvis, joint classes, synovial joints and the knee (22 diagrams, about 150 concept questions and fill-in-the-blank slide notes). Parts the teacher grayed out on her slides are grayed out here too and aren't quizzed. |
 | `body.html` | **Body Orientation**: anterior and posterior landmarks, body planes and body cavities (4 diagrams) |
 
 `index.html` is a hub that links to each unit. Each unit saves its own progress.
@@ -47,6 +47,7 @@ After you change them, rebuild and check the red debug boxes:
 ```bash
 python3 tools/build_diagrams.py skeletal --debug
 ```
+A diagram can also list `"gray"` boxes (same coordinates), which the build paints over the image to hide parts that aren't on the test.
 This needs Pillow (`pip install pillow`). Delete `images/*/debug_*.png` when you're done; they're git-ignored.
 
 ## Adding a unit
