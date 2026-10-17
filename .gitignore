@@ -1,4 +1,4 @@
-images/debug_*.png
+images/*/debug_*.png
 .DS_Store
 __pycache__/
 .claude/

@@ -1,12 +1,16 @@
-"""Crop the source slides and generate js/diagrams.js.
+"""Crop the source slides and generate each unit's js/<unit>/diagrams.js.
 
-Label boxes are written in ORIGINAL screenshot pixel coordinates (x, y, w, h)
-so they're easy to measure. This script converts them to percentages of the
-cropped image, which is what the web page uses to position the blanks.
+Each unit has a spec module (tools/spec_<unit>.py) listing its diagrams. Label
+boxes are written in ORIGINAL image pixel coordinates (x, y, w, h) so they're
+easy to measure; this script pads them, converts them to percentages of the
+cropped image, and writes the data the web page uses to place the blanks.
 
-Run from the project root:  python3 tools/build_diagrams.py [--debug]
---debug also writes images/debug_*.png with the boxes drawn in red.
+Run from the project root:
+    python3 tools/build_diagrams.py [unit ...] [--debug]
+With no unit names, every unit is built. --debug also writes
+images/<unit>/debug_*.png with the boxes drawn in red.
 """
+import importlib
 import json
 import sys
 from pathlib import Path
@@ -14,126 +18,67 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent
-
-DIAGRAMS = [
-    {
-        "id": "anterior",
-        "title": "Body Landmarks — Anterior",
-        "source": "source/anterior.png",
-        "crop": (390, 120, 720, 615),
-        "labels": [
-            ("Nasal", (400, 139, 40, 17)),
-            ("Oral", (400, 159, 34, 17)),
-            ("Cervical", (400, 178, 62, 17)),
-            ("Acromial", (400, 200, 66, 17)),
-            ("Thoracic", (399, 234, 68, 17)),
-            ("Brachial", (400, 255, 62, 17)),
-            ("Antecubital", (400, 279, 84, 18)),
-            ("Abdominal", (400, 308, 80, 17)),
-            ("Umbilical", (400, 337, 70, 17)),
-            ("Carpal", (400, 375, 50, 20)),
-            ("Digital", (400, 403, 50, 20)),
-            ("Pubic", (400, 429, 44, 17)),
-            ("Patellar", (400, 467, 62, 17)),
-            ("Crural", (399, 511, 48, 17)),
-            ("Tarsal", (400, 568, 50, 17)),
-            ("Orbital", (606, 141, 52, 17)),
-            ("Buccal", (609, 168, 52, 17)),
-            ("Sternal", (653, 186, 55, 17)),
-            ("Axillary", (653, 211, 58, 19)),
-            ("Pelvic", (658, 336, 46, 17)),
-            ("Coxal", (627, 410, 44, 17)),
-            ("Inguinal", (627, 439, 62, 21)),
-            ("Femoral", (628, 470, 62, 17)),
-            ("Fibular", (628, 496, 53, 17)),
-        ],
-    },
-    {
-        "id": "posterior",
-        "title": "Body Landmarks — Posterior",
-        "source": "source/posterior.png",
-        "crop": (395, 125, 706, 625),
-        "labels": [
-            ("Cephalic", (402, 156, 68, 21)),
-            ("Occipital", (566, 150, 68, 19)),
-            ("Deltoid", (617, 202, 55, 17)),
-            ("Scapular", (615, 246, 68, 19)),
-            ("Vertebral", (626, 272, 69, 17)),
-            ("Olecranal", (626, 292, 77, 17)),
-            ("Lumbar", (632, 322, 59, 17)),
-            ("Sacral", (631, 344, 49, 17)),
-            ("Gluteal", (613, 411, 55, 18)),
-            ("Femoral", (402, 444, 62, 17)),
-            ("Popliteal", (593, 466, 66, 19)),
-            ("Sural", (590, 516, 41, 17)),
-            ("Calcaneal", (589, 565, 75, 17)),
-            ("Plantar", (591, 588, 54, 17)),
-        ],
-    },
-    {
-        "id": "planes",
-        "title": "Body Planes",
-        "source": "source/planes.png",
-        "crop": (60, 95, 540, 630),
-        "labels": [
-            ("Midsagittal (median) plane", (88, 303, 110, 17)),
-            ("Frontal (coronal) plane", (234, 303, 122, 17)),
-            ("Transverse plane", (397, 303, 93, 17)),
-        ],
-    },
-    {
-        "id": "cavities",
-        "title": "Body Cavities",
-        "source": "source/cavities.png",
-        "crop": (40, 95, 440, 595),
-        "labels": [
-            ("Cranial cavity", (54, 128, 58, 36)),
-            ("Spinal cavity", (54, 400, 52, 36)),
-            ("Thoracic cavity", (265, 252, 72, 36)),
-            ("Diaphragm", (265, 323, 77, 20)),
-            ("Abdominal cavity", (265, 387, 60, 53)),
-            ("Pelvic cavity", (266, 487, 50, 32)),
-            ("Abdominopelvic cavity", (329, 383, 40, 140)),
-            ("Dorsal body cavity", (84, 568, 130, 22)),
-            ("Ventral body cavity", (249, 568, 132, 22)),
-        ],
-    },
-]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+UNITS = ["body", "skeletal"]
 
 
-def main(debug: bool) -> None:
+def build_unit(name: str, debug: bool) -> None:
+    spec = importlib.import_module(f"spec_{name}")
+    pad = getattr(spec, "PAD", 0)
+    (ROOT / "images" / name).mkdir(parents=True, exist_ok=True)
+    (ROOT / "js" / name).mkdir(parents=True, exist_ok=True)
+
     out = []
-    for d in DIAGRAMS:
+    for d in spec.DIAGRAMS:
+        src = ROOT / d["source"]
         left, top, right, bottom = d["crop"]
         cw, ch = right - left, bottom - top
-        img = Image.open(ROOT / d["source"]).convert("RGB").crop(d["crop"])
-        img_path = f"images/{d['id']}.png"
-        img.save(ROOT / img_path, optimize=True)
+        img = Image.open(src).convert("RGB").crop(d["crop"])
+        ext = ".jpg" if src.suffix.lower() in (".jpg", ".jpeg") else ".png"
+        img_path = f"images/{name}/{d['id']}{ext}"
+        if ext == ".jpg":
+            img.save(ROOT / img_path, quality=88, optimize=True)
+        else:
+            img.save(ROOT / img_path, optimize=True)
 
-        labels = []
+        boxes = []
         for term, (x, y, w, h) in d["labels"]:
-            labels.append({
-                "term": term,
-                "x": round((x - left) / cw * 100, 2),
-                "y": round((y - top) / ch * 100, 2),
-                "w": round(w / cw * 100, 2),
-                "h": round(h / ch * 100, 2),
-            })
-        out.append({"id": d["id"], "title": d["title"], "image": img_path,
-                    "width": cw, "height": ch, "labels": labels})
+            x, y, w, h = x - pad, y - pad, w + 2 * pad, h + 2 * pad
+            x, y = max(x, left), max(y, top)
+            w, h = min(w, right - x), min(h, bottom - y)
+            boxes.append((term, x, y, w, h))
+
+        labels = [{
+            "term": term,
+            "x": round((x - left) / cw * 100, 2),
+            "y": round((y - top) / ch * 100, 2),
+            "w": round(w / cw * 100, 2),
+            "h": round(h / ch * 100, 2),
+        } for term, x, y, w, h in boxes]
+        out.append({
+            "id": d["id"], "title": d["title"], "section": d.get("section", d["id"]),
+            "noun": d.get("noun", "label"), "image": img_path, "width": cw, "height": ch,
+            "fontPx": d.get("font_px", getattr(spec, "FONT_PX", 11.5)), "labels": labels,
+        })
 
         if debug:
             dbg = img.copy()
             draw = ImageDraw.Draw(dbg)
-            for _, (x, y, w, h) in d["labels"]:
-                draw.rectangle([x - left, y - top, x - left + w, y - top + h], outline="red")
-            dbg.save(ROOT / f"images/debug_{d['id']}.png")
+            for _, x, y, w, h in boxes:
+                draw.rectangle([x - left, y - top, x - left + w, y - top + h], outline="red", width=2)
+            dbg.save(ROOT / f"images/{name}/debug_{d['id']}.png")
 
-    js = ("// Generated by tools/build_diagrams.py — edit that file, not this one.\n"
-          "window.DIAGRAMS = " + json.dumps(out, indent=2) + ";\n")
-    (ROOT / "js/diagrams.js").write_text(js)
-    print(f"Wrote {len(out)} diagrams, {sum(len(d['labels']) for d in out)} labels")
+    js = ("// Generated by tools/build_diagrams.py. Edit tools/spec_" + name + ".py, not this file.\n"
+          "window.DIAGRAMS = " + json.dumps(out, indent=2, ensure_ascii=False) + ";\n")
+    (ROOT / "js" / name / "diagrams.js").write_text(js)
+    print(f"{name}: {len(out)} diagrams, {sum(len(d['labels']) for d in out)} labels")
+
+
+def main() -> None:
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    for name in args or UNITS:
+        build_unit(name, "--debug" in sys.argv)
 
 
 if __name__ == "__main__":
-    main("--debug" in sys.argv)
+    main()

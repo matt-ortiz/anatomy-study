@@ -1,42 +1,54 @@
 # Anatomy Study Quiz
 
-A static study site for body landmarks (anterior and posterior), body planes and body cavities.
-It has no build step and no server code. Open `index.html` directly or host it on GitHub Pages.
+A static study site for AP Biology anatomy units. It has no build step and no server code. Open `index.html` directly or host it on GitHub Pages.
+
+## Units
+| Page | Covers |
+|---|---|
+| `skeletal.html` | **Skeletal System**: bone structure, bone shapes, microscopic bone, fractures and repair, the skeleton, spine, skull, sinuses, rib cage, limbs, pelvis, joint classes, synovial joints and the knee (24 diagrams, about 150 concept questions) |
+| `body.html` | **Body Orientation**: anterior and posterior landmarks, body planes and body cavities (4 diagrams) |
+
+`index.html` is a hub that links to each unit. Each unit saves its own progress.
 
 ## Features
-- **Study:** each diagram has its labels. Tap a label to hide it or show it, and tap a term in the glossary to find it on the diagram.
-- **Label it:** a numbered blank is highlighted and you name it, either by typing (small spelling slips are accepted and flagged) or by multiple choice.
-- **Find it:** you're given a term and tap where it goes on the diagram.
-- **Concepts:** multiple-choice questions on term meanings, planes and cavities.
+- **Study:** each diagram has its labels. Tap a label to hide it or show it, and tap a term in the list to find it on the diagram.
+- **Label it:** a numbered blank is highlighted and you name it, either by typing or by multiple choice. Small spelling slips are accepted and flagged. Filler words are optional, so "frontal" counts for "Frontal bone", and so are words in parentheses, so "articular cartilage" counts for "Articular (hyaline) cartilage".
+- **Find it:** you're given a term and tap where it goes on the diagram. If a term is labeled more than once, any of its spots counts.
+- **Concepts:** multiple-choice questions written from the slide text, plus generated "what does this term mean" questions.
 - **Show answered:** a toggle during diagram questions that colors labels already answered in the quiz. Green means right on the first try, orange means right on a retry and red means missed.
 - **Repeat missed questions:** a home-page setting, on by default. A missed question comes back 3 questions later until it's answered right. Scores count first tries only.
-- **Missed items:** across sessions, anything answered wrong shows up under "Review what you missed" until it's answered right twice in a row. Progress is saved in the browser's localStorage, so it's per device.
+- **Missed items:** across sessions, anything answered wrong shows up under "Review what you missed" until it's answered right twice in a row. Progress is saved in the browser's localStorage, per device and per unit.
 
 ## Run locally
 ```bash
 python3 -m http.server 8765
 ```
-Then open http://localhost:8765. Opening `index.html` directly works too.
+Then open http://localhost:8765.
 
-## Deploy to GitHub Pages
-1. Create a GitHub repo and push this folder to it.
-2. In the repo, go to **Settings → Pages → Build and deployment**, choose **Deploy from a branch**, select `main` and `/ (root)`, then save.
-3. The site will be at `https://<username>.github.io/<repo>/` within a minute or two.
+## Deploy
+Pushing to `main` redeploys GitHub Pages automatically.
 
 ## Project layout
 | Path | What it is |
 |---|---|
-| `index.html`, `css/`, `js/app.js` | The app |
-| `js/content.js` | Term meanings, accepted alternate answers and concept questions. **Edit this to add questions.** |
-| `js/diagrams.js` | Generated label positions. Don't edit it by hand. |
-| `source/` | The original slide screenshots |
-| `tools/build_diagrams.py` | Crops `source/` into `images/` and writes `js/diagrams.js` |
+| `index.html`, `body.html`, `skeletal.html` | Hub and unit pages |
+| `css/`, `js/app.js` | Shared app, used by every unit |
+| `js/<unit>/content.js` | Unit settings (sections, storage key), term meanings, accepted alternate answers and concept questions. **Edit this to add questions.** |
+| `js/<unit>/diagrams.js` | Generated label positions. Don't edit it by hand. |
+| `source/<unit>/` | Original figures (slide screenshots or images pulled from the slide decks) |
+| `tools/spec_<unit>.py` | Each diagram's crop and label boxes |
+| `tools/build_diagrams.py` | Crops `source/` into `images/<unit>/` and writes `js/<unit>/diagrams.js` |
 
 ## Adding or fixing a diagram
-Label boxes are defined in `tools/build_diagrams.py` in the original screenshot's pixel coordinates.
+Label boxes are defined in `tools/spec_<unit>.py` in the original image's pixel coordinates.
 After you change them, rebuild and check the red debug boxes:
 ```bash
-python3 tools/build_diagrams.py --debug
+python3 tools/build_diagrams.py skeletal --debug
 ```
-This needs Pillow (`pip install pillow`). Delete `images/debug_*.png` when you're done; they're git-ignored.
-For a new diagram, add an entry to `DIAGRAMS` in the build script, add its terms to `GLOSSARY` in `js/content.js`, and add a topic to `TOPICS` in `js/app.js`.
+This needs Pillow (`pip install pillow`). Delete `images/*/debug_*.png` when you're done; they're git-ignored.
+
+## Adding a unit
+1. Put the figures in `source/<unit>/` and write `tools/spec_<unit>.py`. Copy `spec_skeletal.py`; each diagram needs a `section`.
+2. Add the unit name to `UNITS` in `tools/build_diagrams.py` and run the build.
+3. Write `js/<unit>/content.js`, with `window.UNIT` (sections, storage key), `GLOSSARY`, `ALIASES` and `CONCEPT_QUESTIONS`. Every diagram term needs a glossary entry.
+4. Copy `skeletal.html` to `<unit>.html`, point its scripts at the new unit, and add a card to `index.html`.

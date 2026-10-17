@@ -1,5 +1,19 @@
-// Study content: what every label means, plus hand-written concept questions.
-// Region/plane/cavity names must match the "term" values in js/diagrams.js.
+// Body Orientation unit: landmarks, body planes and body cavities.
+// Terms must match the "term" values in js/body/diagrams.js (built from tools/spec_body.py).
+
+window.UNIT = {
+  id: "body",
+  title: "Body Orientation",
+  heading: "Body landmarks, planes & cavities",
+  intro: "Study the diagrams, then quiz yourself. Terms you miss come back until you get them right twice in a row.",
+  storageKey: "bioquiz", // keeps progress saved before units existed
+  sections: [
+    { id: "anterior", name: "Anterior landmarks" },
+    { id: "posterior", name: "Posterior landmarks" },
+    { id: "planes", name: "Body planes" },
+    { id: "cavities", name: "Body cavities" },
+  ],
+};
 
 window.GLOSSARY = {
   // ---- Anterior landmarks ----

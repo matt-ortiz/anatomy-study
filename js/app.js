@@ -1,24 +1,24 @@
 (() => {
   "use strict";
 
+  // Each unit page loads its own data first: window.UNIT, DIAGRAMS, GLOSSARY, ALIASES, CONCEPT_QUESTIONS.
   const app = document.getElementById("app");
+  const UNIT = window.UNIT;
   const DIAGRAMS = window.DIAGRAMS;
   const GLOSSARY = window.GLOSSARY;
   const ALIASES = window.ALIASES || {};
   const DIAG = Object.fromEntries(DIAGRAMS.map(d => [d.id, d]));
+  const DIAG_ORDER = Object.fromEntries(DIAGRAMS.map((d, i) => [d.id, i]));
 
-  const TOPICS = [
-    { id: "anterior", name: "Anterior landmarks" },
-    { id: "posterior", name: "Posterior landmarks" },
-    { id: "planes", name: "Body planes" },
-    { id: "cavities", name: "Body cavities" },
-  ];
+  // Sections are the quiz topics (e.g. Bones / The skeleton / Joints); each diagram belongs to one.
+  const TOPICS = UNIT.sections;
   const TOPIC_NAME = Object.fromEntries(TOPICS.map(t => [t.id, t.name]));
+  const diagramsIn = topic => DIAGRAMS.filter(d => d.section === topic);
 
   const MODES = {
     label:   { name: "Label it", desc: "A label is highlighted on the diagram. Name it." },
     find:    { name: "Find it", desc: "You're given a term. Tap where it goes on the diagram." },
-    concept: { name: "Concepts", desc: "Multiple-choice questions on meanings, planes and cavities." },
+    concept: { name: "Concepts", desc: "Multiple-choice questions on meanings and key facts from the slides." },
     mix:     { name: "Mix", desc: "All three question types, shuffled." },
   };
 
@@ -46,13 +46,14 @@
       try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* private mode etc. */ }
     },
   };
-  const STATS_KEY = "bioquiz.stats.v1";
-  const PREFS_KEY = "bioquiz.prefs.v1";
+  const STATS_KEY = `${UNIT.storageKey}.stats.v1`;
+  const PREFS_KEY = `${UNIT.storageKey}.prefs.v1`;
   let stats = store.get(STATS_KEY, {});
   let prefs = Object.assign(
-    { topics: ["anterior", "posterior", "planes", "cavities"], mode: "label", style: "type", length: "20", showAnswered: true, retryMissed: true },
+    { topics: TOPICS.map(t => t.id), mode: "label", style: "type", length: "20", showAnswered: true, retryMissed: true },
     store.get(PREFS_KEY, {})
   );
+  prefs.topics = prefs.topics.filter(id => TOPIC_NAME[id]);
 
   function record(key, correct) {
     const s = stats[key] || { right: 0, wrong: 0, streak: 0 };
@@ -65,19 +66,27 @@
 
   // ---------- Question bank ----------
   // Every quizzable thing has a stable key so progress can be tracked.
+  // A term can be labeled more than once on a diagram (e.g. "Compact bone"); it's one item,
+  // asked at its first spot, and any of its spots counts in "Find it".
   const labelKey = (dId, i) => `L:${dId}:${DIAG[dId].labels[i].term}`;
+  const spotsOf = (d, term) => d.labels.map((l, i) => (l.term === term ? i : -1)).filter(i => i >= 0);
 
-  const LABEL_ITEMS = DIAGRAMS.flatMap(d => d.labels.map((_, i) => ({ d: d.id, i, key: labelKey(d.id, i), topic: d.id })));
+  const LABEL_ITEMS = DIAGRAMS.flatMap(d => d.labels
+    .map((l, i) => ({ d: d.id, i, key: labelKey(d.id, i), topic: d.section }))
+    .filter(it => d.labels.findIndex(l => l.term === d.labels[it.i].term) === it.i));
 
   const QUESTIONS = buildQuestions();
 
+  // Glossary entries with a "side" (body landmarks) or a "topic" get generated
+  // meaning questions; distractors come from the same group.
   function buildQuestions() {
     const qs = [];
-    const regionTerms = Object.keys(GLOSSARY).filter(t => GLOSSARY[t].side);
-    for (const term of regionTerms) {
+    const quizTerms = Object.keys(GLOSSARY).filter(t => (GLOSSARY[t].side || GLOSSARY[t].topic) && GLOSSARY[t].quiz !== false);
+    const groupOf = t => (GLOSSARY[t].side ? "regions" : GLOSSARY[t].topic);
+    for (const term of quizTerms) {
       const { meaning, side } = GLOSSARY[term];
-      const topic = side === "both" ? "anterior" : side;
-      const others = regionTerms.filter(t => t !== term);
+      const topic = side ? (side === "both" ? "anterior" : side) : GLOSSARY[term].topic;
+      const others = quizTerms.filter(t => t !== term && groupOf(t) === groupOf(term) && meaningOf(t) !== meaning);
       qs.push({
         id: `mean:${term}`, topic,
         q: `What does the term <strong>${esc(term)}</strong> refer to?`,
@@ -87,11 +96,12 @@
       });
       qs.push({
         id: `term:${term}`, topic,
-        q: `Which region is the <strong>${esc(meaning)}</strong>?`,
+        q: side ? `Which region is the <strong>${esc(meaning)}</strong>?` : `Which term means <strong>${esc(meaning)}</strong>?`,
         answer: term,
         options: () => shuffle([term, ...sample(others, 3)]),
         explain: `${term}: ${meaning}.`,
       });
+      if (!side) continue;
       const sideAnswer = side === "both" ? "Both" : side === "anterior" ? "Anterior" : "Posterior";
       qs.push({
         id: `side:${term}`, topic,
@@ -114,15 +124,26 @@
   }
   const QUESTION_BY_KEY = Object.fromEntries(QUESTIONS.map(q => [`Q:${q.id}`, q]));
 
-  const labelKeysForTopic = topic => LABEL_ITEMS.filter(it => it.topic === topic).map(it => it.key);
+  const labelKeysForDiagram = dId => LABEL_ITEMS.filter(it => it.d === dId).map(it => it.key);
 
   // ---------- Answer checking ----------
-  const STOP_WORDS = /\b(the|region|cavity|plane|body|area)\b/g;
-  const normalize = s => s.toLowerCase().replace(/\(.*?\)/g, m => " " + m.slice(1, -1) + " ")
-    .replace(STOP_WORDS, " ").replace(/[^a-z]/g, "");
+  // Answers are compared after lowercasing and dropping filler words ("bone", "joint",
+  // "cavity"…), so "frontal" matches "Frontal bone". Words in parentheses are optional.
+  const STOP_WORDS = /\b(the|region|cavity|plane|body|area|bone|bones|joint|joints|of|sinus)\b/g;
+  const squash = s => {
+    const kept = s.replace(STOP_WORDS, " ").replace(/[^a-z0-9]/g, "");
+    return kept || s.replace(/[^a-z0-9]/g, ""); // e.g. "Body" alone stays "body"
+  };
+  const normalize = s => squash(s.toLowerCase().replace(/[()]/g, " "));
+  const primaryForm = term => squash(term.toLowerCase().replace(/\(.*?\)/g, " "));
+  const literal = s => s.toLowerCase().replace(/[^a-z0-9]/g, ""); // every word kept
 
-  function acceptedForms(term) {
-    const forms = new Set([normalize(term), ...(ALIASES[term] || []).map(normalize)]);
+  // Forms that would also match a different label on the same diagram are dropped,
+  // so "sternum" isn't accepted for "Body (of sternum)" when "Sternum" is also labeled.
+  function acceptedForms(term, d) {
+    const forms = new Set([primaryForm(term), normalize(term), literal(term), literal(term.replace(/\(.*?\)/g, " ")),
+      ...(ALIASES[term] || []).map(normalize)]);
+    if (d) d.labels.forEach(l => { if (l.term !== term) forms.delete(primaryForm(l.term)); });
     forms.delete("");
     return [...forms];
   }
@@ -139,11 +160,13 @@
   }
 
   // Returns "exact", "close" (small typo) or false.
-  function matchTerm(input, term) {
+  function matchTerm(input, term, d) {
     const n = normalize(input);
     if (!n) return false;
-    const forms = acceptedForms(term);
-    if (forms.includes(n)) return "exact";
+    const forms = acceptedForms(term, d);
+    if (forms.includes(n) || forms.includes(literal(input))) return "exact";
+    // Not a typo if it's exactly another label on this diagram ("L1 vertebra" vs "T1 vertebra").
+    if (d && d.labels.some(l => l.term !== term && acceptedForms(l.term, d).includes(n))) return false;
     for (const f of forms) {
       const allowed = f.length >= 9 ? 2 : f.length >= 5 ? 1 : 0;
       if (allowed && editDistance(n, f) <= allowed) return "close";
@@ -152,11 +175,12 @@
   }
 
   // ---------- Session building ----------
-  function buildSession({ topics, mode, length }) {
-    const labelItems = LABEL_ITEMS.filter(it => topics.includes(it.topic));
-    const mcItems = QUESTIONS.filter(q => topics.includes(q.topic)).map(q => ({ type: "mc", key: `Q:${q.id}`, q }));
+  // diagrams (optional) narrows diagram questions to specific diagrams, e.g. from the study view.
+  function buildSession({ topics, mode, length, diagrams }) {
+    const labelItems = LABEL_ITEMS.filter(it => (diagrams ? diagrams.includes(it.d) : topics.includes(it.topic)));
+    const mcItems = diagrams ? [] : QUESTIONS.filter(q => topics.includes(q.topic)).map(q => ({ type: "mc", key: `Q:${q.id}`, q }));
     const limit = length === "all" ? Infinity : Number(length);
-    const topicOrder = it => topics.indexOf(it.topic);
+    const topicOrder = it => DIAG_ORDER[it.d];
 
     let items;
     if (mode === "label" || mode === "find") {
@@ -204,14 +228,18 @@
     const blanks = d.labels.map((l, i) => {
       const st = (opts.state && opts.state(i)) || {};
       // Single-line boxes may grow to fit the revealed term; tall ones wrap or run vertically.
-      const layout = l.h > l.w * 2 ? " vertical" : l.h * d.height / 100 < 26 ? " single" : "";
+      const hPx = l.h * d.height / 100, wPx = l.w * d.width / 100;
+      const layout = hPx > wPx * 2 ? " vertical" : hPx < d.fontPx * 1.9 ? " single" : "";
       const text = st.text != null ? esc(st.text) : `<span class="num">${i + 1}</span>`;
       const label = st.text != null ? st.text : `Label ${i + 1}`;
       return `<button type="button" class="blank${layout} ${st.cls || ""}${opts.clickable ? " clickable" : ""}"
         data-blank="${i}" aria-label="${esc(label)}" ${opts.clickable ? "" : 'tabindex="-1"'}
         style="left:${l.x}%;top:${l.y}%;${layout === " single" ? "min-width" : "width"}:${l.w}%;height:${l.h}%">${text}</button>`;
     }).join("");
-    return `<div class="figure-wrap"><div class="figure" style="--ar:${d.width / d.height};--fs:calc(1150cqw / ${d.width})">
+    // Labels scale with the picture; on narrow screens the picture keeps a minimum
+    // width (so labels stay readable) and the card scrolls sideways instead.
+    const minW = Math.round(d.width * 9 / d.fontPx);
+    return `<div class="figure-wrap"><div class="figure" style="--ar:${d.width / d.height};--fs:calc(${d.fontPx * 100}cqw / ${d.width});--minw:${minW}px">
       <img src="${d.image}" width="${d.width}" height="${d.height}" alt="${esc(d.title)} diagram">
       ${blanks}</div>${opts.footer || ""}</div>`;
   }
@@ -236,17 +264,23 @@
     const uniqueWeak = [...new Set(weakNames)];
     const weakConcepts = weakKeys.length - weakNames.length;
 
-    const tiles = TOPICS.map(t => {
-      const keys = labelKeysForTopic(t.id);
+    const tile = (d, name) => {
+      const keys = labelKeysForDiagram(d.id);
       const done = keys.filter(isMastered).length;
       const pct = Math.round(done / keys.length * 100);
-      return `<button class="tile" data-study="${t.id}">
-        <div class="tile-img"><img src="${DIAG[t.id].image}" alt=""></div>
-        <div class="tile-name">${t.name}</div>
+      return `<button class="tile" data-study="${d.id}">
+        <div class="tile-img"><img src="${d.image}" alt="" loading="lazy"></div>
+        <div class="tile-name">${esc(name)}</div>
         <div class="bar"><span style="width:${pct}%"></span></div>
         <div class="tile-progress">${done} / ${keys.length} labels mastered</div>
       </button>`;
-    }).join("");
+    };
+    // One diagram per section: a single grid named by section. Otherwise group tiles by section.
+    const flat = TOPICS.every(t => diagramsIn(t.id).length === 1);
+    const tiles = flat
+      ? `<div class="study-tiles">${TOPICS.map(t => tile(diagramsIn(t.id)[0], t.name)).join("")}</div>`
+      : TOPICS.map(t => `<h3 class="tile-group">${esc(t.name)}</h3>
+          <div class="study-tiles">${diagramsIn(t.id).map(d => tile(d, d.title)).join("")}</div>`).join("");
 
     const topicChips = TOPICS.map(t =>
       `<button class="chip" data-topic="${t.id}" aria-pressed="${prefs.topics.includes(t.id)}">${t.name}</button>`).join("");
@@ -261,15 +295,15 @@
 
     app.innerHTML = `
       <section class="hero">
-        <h1>Body landmarks, planes &amp; cavities</h1>
-        <p>Study the diagrams, then quiz yourself. Terms you miss come back until you get them right twice in a row.</p>
+        <h1>${esc(UNIT.heading)}</h1>
+        <p>${esc(UNIT.intro)}</p>
       </section>
       <div class="home-grid">
         <div>
           <section class="card">
             <h2>Study the diagrams</h2>
             <p class="muted" style="font-size:.92rem">Tap a label to hide it or show it and test yourself.</p>
-            <div class="study-tiles">${tiles}</div>
+            ${tiles}
           </section>
           ${weakKeys.length ? `
           <section class="card">
@@ -336,13 +370,21 @@
     let flashIdx = -1;
 
     const draw = () => {
-      const tabs = TOPICS.map(t =>
-        `<button class="tab" role="tab" data-tab="${t.id}" aria-selected="${t.id === d.id}">${t.name}</button>`).join("");
+      const idx = DIAG_ORDER[d.id];
+      const nav = DIAGRAMS.length <= 6
+        ? `<div class="tabs" role="tablist">${DIAGRAMS.map(x =>
+            `<button class="tab" role="tab" data-tab="${x.id}" aria-selected="${x.id === d.id}">${esc(TOPIC_NAME[x.section] && diagramsIn(x.section).length === 1 ? TOPIC_NAME[x.section] : x.title)}</button>`).join("")}</div>`
+        : `<div class="diagram-picker">
+            <button class="btn" data-tab="${DIAGRAMS[(idx + DIAGRAMS.length - 1) % DIAGRAMS.length].id}" aria-label="Previous diagram">‹</button>
+            <select id="diagram-select" aria-label="Choose a diagram">${TOPICS.map(t => `<optgroup label="${esc(t.name)}">${diagramsIn(t.id).map(x =>
+              `<option value="${x.id}" ${x.id === d.id ? "selected" : ""}>${esc(x.title)}</option>`).join("")}</optgroup>`).join("")}</select>
+            <button class="btn" data-tab="${DIAGRAMS[(idx + 1) % DIAGRAMS.length].id}" aria-label="Next diagram">›</button>
+          </div>`;
       const glossary = d.labels.map((l, i) =>
         `<li><button data-row="${i}"><span class="n">${i + 1}</span><span class="t">${esc(l.term)}</span><span class="m">${esc(meaningOf(l.term))}</span></button></li>`).join("");
 
       app.innerHTML = `
-        <div class="tabs" role="tablist">${tabs}</div>
+        ${nav}
         <div class="study-layout">
           <div>
             <div class="study-tools">
@@ -368,9 +410,11 @@
         </div>`;
       if (flashIdx >= 0) {
         const el = app.querySelector(`[data-blank="${flashIdx}"]`);
-        if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
+        if (el) el.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
       }
       flashIdx = -1;
+      const sel = app.querySelector("#diagram-select");
+      if (sel) sel.onchange = () => go("study", sel.value);
     };
 
     app.onclick = e => {
@@ -382,7 +426,7 @@
       else if (t.dataset.all === "show") hidden.clear();
       else if (t.dataset.row) { const i = +t.dataset.row; hidden.delete(i); flashIdx = i; }
       else if (t.dataset.quiz) {
-        return startQuiz(buildSession({ topics: [d.id], mode: t.dataset.quiz, length: "all" }), "quiz");
+        return startQuiz(buildSession({ diagrams: [d.id], mode: t.dataset.quiz, length: "all" }), "quiz");
       } else return;
       draw();
     };
@@ -435,10 +479,10 @@
       const term = d.labels[it.i].term;
       let body;
       if (it.type === "label") {
-        const noun = d.id === "planes" ? "plane" : d.id === "cavities" ? "label" : "region";
+        const noun = d.noun;
         const prompt = `Name the highlighted ${noun} <strong>#${it.i + 1}</strong>.`;
         if (quiz.style === "choose") {
-          let pool = d.labels.map(l => l.term).filter(t => t !== term);
+          let pool = [...new Set(d.labels.map(l => l.term))].filter(t => t !== term);
           if (d.id === "planes") pool = pool.concat("Parasagittal plane");
           const opts = shuffle([term, ...sample(pool, 3)]);
           quiz.current.choices = opts;
@@ -459,14 +503,14 @@
         <div class="quiz-layout has-figure">
           <div id="figure">${quizFigure(it)}</div>
           <section class="card panel">
-            <div class="topic-tag">${TOPIC_NAME[d.id]} · ${MODES[it.type].name}${retryTag}</div>
+            <div class="topic-tag">${esc(d.title)} · ${MODES[it.type].name}${retryTag}</div>
             ${body}
             <div id="feedback"></div>
             ${it.type === "label" && quiz.style === "type" ? `<div class="hint">Press Enter to check. Small spelling slips still count.</div>` : ""}
           </section>
         </div>`;
       const target = app.querySelector(".blank.target");
-      if (target) target.scrollIntoView({ block: "nearest" });
+      if (target) target.scrollIntoView({ block: "nearest", inline: "center" });
     }
 
     const input = app.querySelector("#answer");
@@ -487,6 +531,8 @@
   // Missed labels stay unnamed until their retry is answered correctly.
   function quizFigure(it, result) {
     const d = DIAG[it.d];
+    const term0 = d.labels[it.i].term;
+    const isTarget = i => d.labels[i].term === term0; // every spot of the asked term
     const marks = prefs.showAnswered ? (quiz.marks[d.id] || {}) : {};
     const legend = prefs.showAnswered ? `<div class="legend">
       <span><i class="sw prev-good"></i>Right first try</span>
@@ -498,10 +544,11 @@
       state: i => {
         const term = shortName(d.labels[i].term);
         if (result) {
-          if (i === it.i) return { cls: result.correct ? "correct" : "wrong", text: term };
+          if (isTarget(i)) return { cls: result.correct ? "correct" : "wrong", text: term };
           if (result.clicked === i) return { cls: "wrong", text: term };
         }
-        if (i === it.i) return it.type === "label" ? { cls: "target" } : {}; // don't hint a retry's spot
+        if (i === it.i && it.type === "label") return { cls: "target" };
+        if (isTarget(i)) return {}; // don't hint a retry's spot
         if (marks[i] === "first") return { cls: "prev-good", text: term };
         if (marks[i] === "retry") return { cls: "prev-retry", text: term };
         if (marks[i] === "missed") return quiz.retryMissed ? { cls: "prev-missed" } : { cls: "prev-missed", text: term };
@@ -533,7 +580,8 @@
     }
     if (t.dataset.blank != null && it.type === "find") {
       const i = +t.dataset.blank;
-      return answer(i === it.i, { clicked: i });
+      const d = DIAG[it.d];
+      return answer(d.labels[i].term === d.labels[it.i].term, { clicked: i });
     }
   }
 
@@ -543,12 +591,12 @@
     const val = input.value.trim();
     if (!val) { input.focus(); return; }
     const it = quiz.items[quiz.idx];
-    const term = DIAG[it.d].labels[it.i].term;
-    const m = matchTerm(val, term);
+    const d = DIAG[it.d];
+    const term = d.labels[it.i].term;
+    const m = matchTerm(val, term, d);
     let otherLabel = null;
     if (!m) {
-      const d = DIAG[it.d];
-      const j = d.labels.findIndex((l, k) => k !== it.i && matchTerm(val, l.term) === "exact");
+      const j = d.labels.findIndex(l => l.term !== term && matchTerm(val, l.term, d) === "exact");
       if (j >= 0) otherLabel = { term: d.labels[j].term, num: j + 1 };
     }
     answer(!!m, { typed: val, close: m === "close", otherLabel });
@@ -568,7 +616,8 @@
     }
     if (it.type !== "mc") {
       const marks = (quiz.marks[it.d] ||= {});
-      marks[it.i] = !correct ? "missed" : it.retry || marks[it.i] === "missed" ? "retry" : "first";
+      const mark = !correct ? "missed" : it.retry || marks[it.i] === "missed" ? "retry" : "first";
+      spotsOf(DIAG[it.d], DIAG[it.d].labels[it.i].term).forEach(i => (marks[i] = mark));
     }
 
     let term, meaning, extra = "";
@@ -597,7 +646,7 @@
         if (input) input.disabled = true;
         app.querySelectorAll("#answer-form button").forEach(b => (b.disabled = true));
       }
-      if (info.clicked != null && info.clicked !== it.i) {
+      if (info.clicked != null && !correct) {
         extra = `You tapped <strong>${esc(shortName(d.labels[info.clicked].term))}</strong> (${esc(meaningOf(d.labels[info.clicked].term))}).`;
       }
       if (info.otherLabel) {
@@ -665,7 +714,7 @@
         return `<li><div class="t">${item.q.q}</div><div class="m">Answer: ${esc(item.q.answer)}</div></li>`;
       }
       const term = DIAG[item.d].labels[item.i].term;
-      return `<li><div class="t">${esc(term)} <span class="muted" style="font-weight:400">· ${esc(TOPIC_NAME[item.d])}</span></div><div class="m">${esc(meaningOf(term))}</div></li>`;
+      return `<li><div class="t">${esc(term)} <span class="muted" style="font-weight:400">· ${esc(DIAG[item.d].title)}</span></div><div class="m">${esc(meaningOf(term))}</div></li>`;
     }).join("");
 
     app.innerHTML = `

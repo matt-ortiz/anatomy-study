@@ -77,6 +77,19 @@ p { margin: 0 0 1em; }
   font-weight: 700; font-size: 1.05rem;
 }
 .brand-mark { font-size: 1.3rem; }
+.topbar { display: flex; align-items: center; gap: 8px; }
+a.brand { color: inherit; text-decoration: none; }
+.crumb-sep { color: var(--muted); }
+.crumb { background: none; border: 0; padding: 4px 0; font-weight: 600; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crumb:hover { color: var(--text); }
+
+/* ---------- Unit hub ---------- */
+.unit-list { display: grid; gap: 16px; max-width: 760px; }
+.unit-card { display: flex; gap: 16px; align-items: center; color: inherit; text-decoration: none; }
+.unit-card:hover { border-color: var(--accent); }
+.unit-card img { width: 96px; height: 96px; object-fit: contain; background: #fff; border-radius: 10px; flex: none; }
+.unit-card h2 { margin-bottom: 4px; }
+.unit-card p { margin: 0; font-size: .92rem; }
 
 /* ---------- Cards & buttons ---------- */
 .card {
@@ -112,6 +125,8 @@ p { margin: 0 0 1em; }
 @media (min-width: 860px) { .home-grid { grid-template-columns: 1.25fr 1fr; align-items: start; } }
 
 .study-tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.tile-group { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 18px 0 8px; }
+.tile-group:first-of-type { margin-top: 4px; }
 @media (min-width: 560px) { .study-tiles { grid-template-columns: repeat(4, 1fr); } }
 .tile {
   display: flex; flex-direction: column; gap: 6px; text-align: left;
@@ -141,10 +156,11 @@ p { margin: 0 0 1em; }
 .weak-tag { font-size: .82rem; padding: 3px 10px; border-radius: 99px; background: var(--bad-soft); color: var(--bad); }
 
 /* ---------- Diagram figure ---------- */
-.figure-wrap { background: #fff; border-radius: var(--radius); border: 1px solid var(--border); padding: 10px; }
+.figure-wrap { background: #fff; border-radius: var(--radius); border: 1px solid var(--border); padding: 10px; overflow-x: auto; }
 .figure {
   position: relative; margin: 0 auto;
   container-type: inline-size;
+  min-width: var(--minw, 0);
   user-select: none; -webkit-user-select: none;
 }
 .figure img { display: block; width: 100%; height: auto; }
@@ -196,14 +212,21 @@ p { margin: 0 0 1em; }
 /* ---------- Quiz layout ---------- */
 .quiz-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .progress { flex: 1; }
-.progress-text { display: flex; justify-content: space-between; font-size: .88rem; color: var(--muted); margin-bottom: 4px; }
+.progress-text { display: flex; justify-content: space-between; gap: 8px; font-size: .88rem; color: var(--muted); margin-bottom: 4px; }
+@media (max-width: 520px) {
+  .progress-text span:last-child { display: none; }
+  .quiz-head { gap: 8px; }
+  .quiz-head .btn-ghost { padding: 10px 8px; }
+}
 .progress .bar { height: 8px; margin: 0; }
 .progress .bar > span { background: var(--accent); }
 
-.quiz-layout { display: grid; gap: 16px; grid-template-columns: 1fr; }
-.quiz-layout.has-figure { grid-template-columns: 1fr; }
+/* minmax(0, …) lets a wide diagram scroll inside its card instead of widening the page. */
+.quiz-layout { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+.quiz-layout.has-figure { grid-template-columns: minmax(0, 1fr); }
+.study-layout { grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 860px) {
-  .quiz-layout.has-figure { grid-template-columns: minmax(0, 1.2fr) minmax(300px, 1fr); align-items: start; }
+  .quiz-layout.has-figure { grid-template-columns: minmax(0, 2fr) minmax(290px, 1fr); align-items: start; }
   .quiz-layout.has-figure .panel { position: sticky; top: 72px; }
 }
 @media (max-width: 859px) {
@@ -265,11 +288,17 @@ p { margin: 0 0 1em; }
 .missed-list .m { color: var(--muted); font-size: .92rem; }
 
 /* ---------- Study ---------- */
+.diagram-picker { display: flex; gap: 8px; margin-bottom: 14px; }
+.diagram-picker select {
+  flex: 1; min-width: 0; min-height: 44px; padding: 8px 12px; font: inherit;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text);
+}
+.diagram-picker .btn { padding: 10px 14px; font-size: 1.2rem; line-height: 1; }
 .tabs { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 14px; padding-bottom: 2px; scrollbar-width: none; }
 .tab { flex: none; min-height: 40px; padding: 8px 14px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); font-weight: 500; }
 .tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
 .study-layout { display: grid; gap: 16px; }
-@media (min-width: 860px) { .study-layout { grid-template-columns: minmax(0, 1.2fr) minmax(300px, 1fr); align-items: start; } }
+@media (min-width: 860px) { .study-layout { grid-template-columns: minmax(0, 2fr) minmax(290px, 1fr); align-items: start; } }
 .study-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
 .glossary { list-style: none; margin: 0; padding: 0; }
 .glossary li button {
