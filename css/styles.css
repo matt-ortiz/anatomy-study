@@ -279,6 +279,30 @@ a.brand { color: inherit; text-decoration: none; }
 .hint { font-size: .8rem; color: var(--muted); margin-top: 10px; text-align: center; }
 @media (hover: none) { .hint { display: none; } }
 
+/* ---------- Slide notes ---------- */
+.slide-title { font-size: .92rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+.fill-sentence { line-height: 1.6; font-weight: 500; }
+.fill-sentence strong { color: inherit; font-weight: 700; }
+.fill-blank {
+  display: inline-block; min-width: 4.5em; padding: 0 .4em; margin: 0 .1em; text-align: center;
+  border-bottom: 2.5px solid var(--accent); background: var(--accent-soft); border-radius: 4px; color: var(--accent);
+}
+.fill-blank.good { border-color: var(--good); background: var(--good-soft); color: var(--good); }
+.fill-blank.bad { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); }
+.nowrap { white-space: nowrap; }
+.notes-btn small { color: var(--muted); font-weight: 500; margin-left: 4px; }
+.slide-list { display: grid; gap: 12px; }
+@media (min-width: 860px) { .slide-list { grid-template-columns: 1fr 1fr; align-items: start; } }
+.slide-card { margin: 0; }
+.slide-card h3 { font-size: 1rem; }
+.slide-card ul { margin: 0; padding-left: 1.2em; }
+.slide-card li { margin: 6px 0; line-height: 1.7; }
+.note-blank {
+  font: inherit; font-weight: 600; padding: 0 .35em; margin: 0 .1em; border: 0; border-radius: 4px;
+  border-bottom: 2px solid var(--accent); background: var(--accent-soft); color: var(--text);
+}
+.note-blank.shown { background: transparent; color: var(--accent); }
+
 /* ---------- Results ---------- */
 .score-big { font-size: 3rem; font-weight: 800; line-height: 1; margin: 6px 0; }
 .missed-list { list-style: none; padding: 0; margin: 0 0 16px; }

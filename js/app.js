@@ -14,13 +14,17 @@
   const TOPICS = UNIT.sections;
   const TOPIC_NAME = Object.fromEntries(TOPICS.map(t => [t.id, t.name]));
   const diagramsIn = topic => DIAGRAMS.filter(d => d.section === topic);
+  const DIAGRAM_TOPICS = TOPICS.filter(t => diagramsIn(t.id).length); // some topics are questions only
+  const NOTES = window.SLIDE_NOTES || [];
 
   const MODES = {
     label:   { name: "Label it", desc: "A label is highlighted on the diagram. Name it." },
     find:    { name: "Find it", desc: "You're given a term. Tap where it goes on the diagram." },
     concept: { name: "Concepts", desc: "Multiple-choice questions on meanings and key facts from the slides." },
-    mix:     { name: "Mix", desc: "All three question types, shuffled." },
+    fill:    { name: "Slide notes", desc: "Fill in the blanks in sentences from the slides." },
+    mix:     { name: "Mix", desc: "Every question type, shuffled." },
   };
+  if (!NOTES.length) delete MODES.fill;
 
   // ---------- Helpers ----------
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -54,6 +58,11 @@
     store.get(PREFS_KEY, {})
   );
   prefs.topics = prefs.topics.filter(id => TOPIC_NAME[id]);
+  // Select topics added since this device last visited.
+  const seen = prefs.seenTopics || prefs.topics;
+  TOPICS.forEach(t => { if (!seen.includes(t.id) && !prefs.topics.includes(t.id)) prefs.topics.push(t.id); });
+  prefs.seenTopics = TOPICS.map(t => t.id);
+  if (!MODES[prefs.mode]) prefs.mode = "label";
 
   function record(key, correct) {
     const s = stats[key] || { right: 0, wrong: 0, streak: 0 };
@@ -115,7 +124,7 @@
     }
     for (const c of window.CONCEPT_QUESTIONS) {
       qs.push({
-        id: `q:${c.id}`, topic: c.topic, q: esc(c.q), answer: c.a[0],
+        id: `q:${c.id}`, topic: c.topic, also: c.also || [], q: esc(c.q), answer: c.a[0],
         options: () => shuffle(c.a),
         explain: c.explain || "",
       });
@@ -123,6 +132,72 @@
     return qs;
   }
   const QUESTION_BY_KEY = Object.fromEntries(QUESTIONS.map(q => [`Q:${q.id}`, q]));
+  const inTopics = (x, topics) => topics.includes(x.topic) || (x.also || []).some(t => topics.includes(t));
+
+  // ---------- Slide notes (fill in the blank) ----------
+  // "{answer|alt|alt}" in a line is a blank. Each blank is one quiz item.
+  // Punctuation right after a blank ("{206}.") stays glued to it so it can't wrap onto its own line.
+  const parseLine = line => {
+    const parts = line.split(/(\{[^}]+\})/).filter(Boolean).map(part =>
+      part.startsWith("{") ? { answers: part.slice(1, -1).split("|"), after: "" } : { text: part });
+    parts.forEach((p, i) => {
+      const next = parts[i + 1];
+      if (p.answers && next && next.text) {
+        p.after = next.text.match(/^[.,;:!?)]*/)[0];
+        next.text = next.text.slice(p.after.length);
+      }
+    });
+    return parts.filter(p => p.answers || p.text);
+  };
+  const glue = (html, after) => (after ? `<span class="nowrap">${html}${esc(after)}</span>` : html);
+  const FILL_ITEMS = [];
+  NOTES.forEach(deck => deck.slides.forEach((slide, si) => {
+    slide.parsed = slide.lines.map(parseLine);
+    slide.parsed.forEach((parts, li) => {
+      let bi = 0;
+      parts.forEach(part => {
+        if (!part.answers) return;
+        FILL_ITEMS.push({ type: "fill", key: `S:${deck.id}:${si}:${li}:${bi}`, deck: deck.id, si, li, bi,
+          topic: slide.topic || deck.topic, also: slide.also || [] });
+        bi++;
+      });
+    });
+  }));
+  const DECK = Object.fromEntries(NOTES.map(d => [d.id, d]));
+  const FILL_BY_KEY = Object.fromEntries(FILL_ITEMS.map(it => [it.key, it]));
+  const fillParts = it => DECK[it.deck].slides[it.si].parsed[it.li];
+  const fillBlank = it => fillParts(it).filter(p => p.answers)[it.bi];
+  // Sentence with the asked blank shown as `blank` (HTML) and any other blanks filled in.
+  function fillSentence(it, blank) {
+    let bi = 0;
+    return fillParts(it).map(p => {
+      if (!p.answers) return esc(p.text);
+      return glue(bi++ === it.bi ? blank : `<strong>${esc(p.answers[0])}</strong>`, p.after);
+    }).join("");
+  }
+  function matchFill(input, answers) {
+    const n = normalize(input), lit = literal(input);
+    if (!n) return false;
+    const forms = answers.flatMap(a => [normalize(a), literal(a)]);
+    if (forms.includes(n) || forms.includes(lit)) return "exact";
+    for (const f of forms) {
+      const allowed = f.length >= 9 ? 2 : f.length >= 5 ? 1 : 0;
+      if (allowed && editDistance(n, f) <= allowed) return "close";
+    }
+    return false;
+  }
+  // Multiple-choice options: the answer plus other blanks from the same deck of the same kind.
+  function fillChoices(it) {
+    const answer = fillBlank(it).answers[0];
+    const numeric = /^\d+$/.test(answer);
+    const byForm = new Map(); // one option per normalized answer, so "Osteoclasts"/"osteoclasts" don't both appear
+    FILL_ITEMS.filter(x => x.deck === it.deck).map(x => fillBlank(x).answers[0])
+      .filter(a => /^\d+$/.test(a) === numeric && normalize(a) !== normalize(answer))
+      .forEach(a => { if (!byForm.has(normalize(a))) byForm.set(normalize(a), a); });
+    const pool = [...byForm.values()];
+    if (numeric) while (pool.length < 3) pool.push(String(+answer + pool.length + 1));
+    return shuffle([answer, ...sample(pool, 3)]);
+  }
 
   const labelKeysForDiagram = dId => LABEL_ITEMS.filter(it => it.d === dId).map(it => it.key);
 
@@ -178,7 +253,8 @@
   // diagrams (optional) narrows diagram questions to specific diagrams, e.g. from the study view.
   function buildSession({ topics, mode, length, diagrams }) {
     const labelItems = LABEL_ITEMS.filter(it => (diagrams ? diagrams.includes(it.d) : topics.includes(it.topic)));
-    const mcItems = diagrams ? [] : QUESTIONS.filter(q => topics.includes(q.topic)).map(q => ({ type: "mc", key: `Q:${q.id}`, q }));
+    const mcItems = diagrams ? [] : QUESTIONS.filter(q => inTopics(q, topics)).map(q => ({ type: "mc", key: `Q:${q.id}`, q }));
+    const fillItems = diagrams ? [] : FILL_ITEMS.filter(it => inTopics(it, topics));
     const limit = length === "all" ? Infinity : Number(length);
     const topicOrder = it => DIAG_ORDER[it.d];
 
@@ -191,9 +267,11 @@
       items = regroupShuffled(items);
     } else if (mode === "concept") {
       items = sample(mcItems, limit);
+    } else if (mode === "fill") {
+      items = sample(fillItems, limit);
     } else {
       const diagramItems = labelItems.map(it => ({ ...it, type: Math.random() < .5 ? "label" : "find" }));
-      items = sample([...diagramItems, ...mcItems], limit);
+      items = sample([...diagramItems, ...mcItems, ...fillItems], limit);
     }
     return items;
   }
@@ -217,6 +295,8 @@
         if (it) items.push({ ...it, type: Math.random() < .5 ? "label" : "find" });
       } else if (QUESTION_BY_KEY[key]) {
         items.push({ type: "mc", key, q: QUESTION_BY_KEY[key] });
+      } else if (FILL_BY_KEY[key]) {
+        items.push({ ...FILL_BY_KEY[key] });
       }
     }
     return items.slice(0, 25);
@@ -249,7 +329,7 @@
 
   function go(screen, arg) {
     if (screen !== "quiz") quiz = null;
-    ({ home: renderHome, study: renderStudy, results: renderResults }[screen] || renderHome)(arg);
+    ({ home: renderHome, study: renderStudy, notes: renderNotes, results: renderResults }[screen] || renderHome)(arg);
     window.scrollTo(0, 0);
   }
 
@@ -260,9 +340,10 @@
   // ---------- Home ----------
   function renderHome() {
     const weakKeys = Object.keys(stats).filter(isWeak);
-    const weakNames = weakKeys.map(k => k.startsWith("L:") ? k.split(":").slice(2).join(":") : null).filter(Boolean);
+    const weakNames = weakKeys.map(k => k.startsWith("L:") ? k.split(":").slice(2).join(":")
+      : FILL_BY_KEY[k] ? fillBlank(FILL_BY_KEY[k]).answers[0] : null).filter(Boolean);
     const uniqueWeak = [...new Set(weakNames)];
-    const weakConcepts = weakKeys.length - weakNames.length;
+    const weakConcepts = weakKeys.filter(k => k.startsWith("Q:")).length;
 
     const tile = (d, name) => {
       const keys = labelKeysForDiagram(d.id);
@@ -276,10 +357,10 @@
       </button>`;
     };
     // One diagram per section: a single grid named by section. Otherwise group tiles by section.
-    const flat = TOPICS.every(t => diagramsIn(t.id).length === 1);
+    const flat = DIAGRAM_TOPICS.every(t => diagramsIn(t.id).length === 1);
     const tiles = flat
-      ? `<div class="study-tiles">${TOPICS.map(t => tile(diagramsIn(t.id)[0], t.name)).join("")}</div>`
-      : TOPICS.map(t => `<h3 class="tile-group">${esc(t.name)}</h3>
+      ? `<div class="study-tiles">${DIAGRAM_TOPICS.map(t => tile(diagramsIn(t.id)[0], t.name)).join("")}</div>`
+      : DIAGRAM_TOPICS.map(t => `<h3 class="tile-group">${esc(t.name)}</h3>
           <div class="study-tiles">${diagramsIn(t.id).map(d => tile(d, d.title)).join("")}</div>`).join("");
 
     const topicChips = TOPICS.map(t =>
@@ -305,6 +386,16 @@
             <p class="muted" style="font-size:.92rem">Tap a label to hide it or show it and test yourself.</p>
             ${tiles}
           </section>
+          ${NOTES.length ? `
+          <section class="card">
+            <h2>Study the slide notes</h2>
+            <p class="muted" style="font-size:.92rem">The written part of each slide, with the key words as blanks you can tap to reveal.</p>
+            <div class="btn-row">${NOTES.map(deck => {
+              const keys = FILL_ITEMS.filter(it => it.deck === deck.id).map(it => it.key);
+              return `<button class="btn notes-btn" data-notes="${deck.id}">${esc(deck.title)}
+                <small>${keys.filter(isMastered).length}/${keys.length}</small></button>`;
+            }).join("")}</div>
+          </section>` : ""}
           ${weakKeys.length ? `
           <section class="card">
             <h2>Review what you missed</h2>
@@ -324,8 +415,8 @@
             <div class="chips">${modeChips}</div>
             <div class="mode-desc">${MODES[prefs.mode].desc}</div>
           </div>
-          <div class="field" ${prefs.mode === "label" || prefs.mode === "mix" ? "" : "hidden"}>
-            <span class="field-label">How to answer "Label it" questions</span>
+          <div class="field" ${["label", "fill", "mix"].includes(prefs.mode) ? "" : "hidden"}>
+            <span class="field-label">How to answer ${MODES.fill ? "\"Label it\" and \"Slide notes\"" : "\"Label it\""} questions</span>
             <div class="chips">${styleChips}</div>
           </div>
           <div class="field">
@@ -346,6 +437,7 @@
       const t = e.target.closest("button");
       if (!t) return;
       if (t.dataset.study) return go("study", t.dataset.study);
+      if (t.dataset.notes) return go("notes", t.dataset.notes);
       if (t.dataset.topic) {
         const id = t.dataset.topic;
         prefs.topics = prefs.topics.includes(id) ? prefs.topics.filter(x => x !== id) : TOPICS.map(x => x.id).filter(x => x === id || prefs.topics.includes(x));
@@ -376,7 +468,7 @@
             `<button class="tab" role="tab" data-tab="${x.id}" aria-selected="${x.id === d.id}">${esc(TOPIC_NAME[x.section] && diagramsIn(x.section).length === 1 ? TOPIC_NAME[x.section] : x.title)}</button>`).join("")}</div>`
         : `<div class="diagram-picker">
             <button class="btn" data-tab="${DIAGRAMS[(idx + DIAGRAMS.length - 1) % DIAGRAMS.length].id}" aria-label="Previous diagram">‹</button>
-            <select id="diagram-select" aria-label="Choose a diagram">${TOPICS.map(t => `<optgroup label="${esc(t.name)}">${diagramsIn(t.id).map(x =>
+            <select id="diagram-select" aria-label="Choose a diagram">${DIAGRAM_TOPICS.map(t => `<optgroup label="${esc(t.name)}">${diagramsIn(t.id).map(x =>
               `<option value="${x.id}" ${x.id === d.id ? "selected" : ""}>${esc(x.title)}</option>`).join("")}</optgroup>`).join("")}</select>
             <button class="btn" data-tab="${DIAGRAMS[(idx + 1) % DIAGRAMS.length].id}" aria-label="Next diagram">›</button>
           </div>`;
@@ -433,6 +525,56 @@
     draw();
   }
 
+  // ---------- Slide notes study view ----------
+  function renderNotes(deckId) {
+    const deck = DECK[deckId] || NOTES[0];
+    const deckItems = FILL_ITEMS.filter(it => it.deck === deck.id);
+    const shown = new Set(); // keys of revealed blanks; all hidden to start
+
+    const draw = () => {
+      const tabs = NOTES.map(x =>
+        `<button class="tab" role="tab" data-deck="${x.id}" aria-selected="${x.id === deck.id}">${esc(x.title)}</button>`).join("");
+      const slides = deck.slides.map((slide, si) => `
+        <section class="card slide-card">
+          <h3>${esc(slide.title)}</h3>
+          <ul>${slide.parsed.map((parts, li) => {
+            let bi = 0;
+            return `<li>${parts.map(p => {
+              if (!p.answers) return esc(p.text);
+              const key = `S:${deck.id}:${si}:${li}:${bi++}`;
+              return glue(shown.has(key)
+                ? `<button class="note-blank shown" data-key="${key}">${esc(p.answers[0])}</button>`
+                : `<button class="note-blank" data-key="${key}" aria-label="Show answer">${"\u00a0".repeat(Math.max(6, p.answers[0].length))}</button>`, p.after);
+            }).join("")}</li>`;
+          }).join("")}</ul>
+        </section>`).join("");
+      app.innerHTML = `
+        <div class="tabs" role="tablist">${tabs}</div>
+        <div class="study-tools">
+          <button class="btn" data-all="hide">Hide all blanks</button>
+          <button class="btn" data-all="show">Show all blanks</button>
+          <button class="btn btn-primary" data-quiz-deck>Quiz this deck (${deckItems.length})</button>
+        </div>
+        <p class="muted" style="font-size:.9rem">Tap a blank to reveal it, and tap again to hide it.</p>
+        <div class="slide-list">${slides}</div>`;
+    };
+
+    app.onclick = e => {
+      const t = e.target.closest("button");
+      if (!t) return;
+      if (t.dataset.deck) return go("notes", t.dataset.deck);
+      if (t.dataset.key) { shown.has(t.dataset.key) ? shown.delete(t.dataset.key) : shown.add(t.dataset.key); }
+      else if (t.dataset.all === "hide") shown.clear();
+      else if (t.dataset.all === "show") deckItems.forEach(it => shown.add(it.key));
+      else if (t.hasAttribute("data-quiz-deck")) return startQuiz(shuffle(deckItems.map(it => ({ ...it }))), "quiz");
+      else return;
+      const y = window.scrollY;
+      draw();
+      window.scrollTo(0, y);
+    };
+    draw();
+  }
+
   // ---------- Quiz ----------
   function startQuiz(items, kind) {
     if (!items.length) return go("home");
@@ -457,12 +599,35 @@
           <div class="progress-text"><span>Question ${quiz.idx + 1} of ${n}${retriesLeft ? ` · ${retriesLeft} to retry` : ""}</span><span>${correctSoFar} of ${firstTries.length} right first try</span></div>
           <div class="bar"><span style="width:${quiz.idx / n * 100}%"></span></div>
         </div>
-        ${it.type !== "mc" ? `<button class="chip" data-toggle-answered aria-pressed="${prefs.showAnswered}" title="Color the labels you've already answered">Show answered</button>` : ""}
+        ${it.type === "label" || it.type === "find" ? `<button class="chip" data-toggle-answered aria-pressed="${prefs.showAnswered}" title="Color the labels you've already answered">Show answered</button>` : ""}
         <button class="btn btn-ghost" data-quit>End</button>
       </div>`;
     const retryTag = it.retry ? ` · <span class="retry-tag">Retry</span>` : "";
 
-    if (it.type === "mc") {
+    if (it.type === "fill") {
+      const deck = DECK[it.deck], slide = deck.slides[it.si];
+      let body;
+      if (quiz.style === "choose") {
+        quiz.current.choices = fillChoices(it);
+        body = choicesHTML(quiz.current.choices);
+      } else {
+        body = `<form class="answer-row" id="answer-form" autocomplete="off">
+            <input class="answer-input" id="answer" type="text" placeholder="Fill in the blank…" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Your answer">
+            <button class="btn btn-primary" type="submit">Check</button>
+          </form>
+          <div class="panel-actions"><button class="btn btn-ghost" data-giveup>I don't know</button></div>`;
+      }
+      app.innerHTML = `${head}
+        <div class="quiz-layout">
+          <section class="card panel">
+            <div class="topic-tag">${esc(deck.title)} · Slide notes${retryTag}</div>
+            <div class="slide-title">${esc(slide.title)}</div>
+            <div class="prompt fill-sentence" id="sentence">${fillSentence(it, `<span class="fill-blank">?</span>`)}</div>
+            ${body}
+            <div id="feedback"></div>
+          </section>
+        </div>`;
+    } else if (it.type === "mc") {
       const opts = it.q.options();
       quiz.current.choices = opts;
       app.innerHTML = `${head}
@@ -575,7 +740,7 @@
     if (t.hasAttribute("data-giveup")) return answer(false, { gaveUp: true });
     if (t.dataset.choice != null) {
       const picked = quiz.current.choices[+t.dataset.choice];
-      const correctAnswer = it.type === "mc" ? it.q.answer : DIAG[it.d].labels[it.i].term;
+      const correctAnswer = it.type === "mc" ? it.q.answer : it.type === "fill" ? fillBlank(it).answers[0] : DIAG[it.d].labels[it.i].term;
       return answer(picked === correctAnswer, { pickedIdx: +t.dataset.choice, picked });
     }
     if (t.dataset.blank != null && it.type === "find") {
@@ -591,6 +756,10 @@
     const val = input.value.trim();
     if (!val) { input.focus(); return; }
     const it = quiz.items[quiz.idx];
+    if (it.type === "fill") {
+      const m = matchFill(val, fillBlank(it).answers);
+      return answer(!!m, { typed: val, close: m === "close" });
+    }
     const d = DIAG[it.d];
     const term = d.labels[it.i].term;
     const m = matchTerm(val, term, d);
@@ -614,14 +783,28 @@
       const at = Math.min(quiz.idx + 1 + RETRY_GAP, quiz.items.length);
       quiz.items.splice(at, 0, { ...it, retry: true });
     }
-    if (it.type !== "mc") {
+    if (it.type === "label" || it.type === "find") {
       const marks = (quiz.marks[it.d] ||= {});
       const mark = !correct ? "missed" : it.retry || marks[it.i] === "missed" ? "retry" : "first";
       spotsOf(DIAG[it.d], DIAG[it.d].labels[it.i].term).forEach(i => (marks[i] = mark));
     }
 
     let term, meaning, extra = "";
-    if (it.type === "mc") {
+    if (it.type === "fill") {
+      term = fillBlank(it).answers[0];
+      app.querySelector("#sentence").innerHTML = fillSentence(it,
+        `<span class="fill-blank ${correct ? "good" : "bad"}">${esc(term)}</span>`);
+      app.querySelectorAll(".choice").forEach((b, i) => {
+        b.disabled = true;
+        if (quiz.current.choices[i] === term) b.classList.add("correct");
+        else if (i === info.pickedIdx) b.classList.add("wrong");
+      });
+      const input = app.querySelector("#answer");
+      if (input) input.disabled = true;
+      app.querySelectorAll("#answer-form button").forEach(b => (b.disabled = true));
+      app.querySelectorAll(".panel-actions").forEach(el => el.remove());
+      if (info.typed && !correct) extra = `You wrote “${esc(info.typed)}”.`;
+    } else if (it.type === "mc") {
       term = it.q.answer;
       meaning = it.q.explain;
       app.querySelectorAll(".choice").forEach((b, i) => {
@@ -664,7 +847,8 @@
     app.querySelector("#feedback").innerHTML = `
       <div class="feedback ${correct ? "good" : "bad"}" role="status">
         <div class="verdict">${verdict}</div>
-        ${showTerm ? `<div>${it.type === "mc" ? (meaning ? esc(meaning) : `Answer: <strong>${esc(term)}</strong>`) : `<strong>${esc(term)}</strong>${meaning ? `: ${esc(meaning)}` : ""}`}</div>` : ""}
+        ${it.type === "fill" ? (correct ? "" : `<div>Answer: <strong>${esc(term)}</strong></div>`) : ""}
+        ${showTerm && it.type !== "fill" ? `<div>${it.type === "mc" ? (meaning ? esc(meaning) : `Answer: <strong>${esc(term)}</strong>`) : `<strong>${esc(term)}</strong>${meaning ? `: ${esc(meaning)}` : ""}`}</div>` : ""}
         ${info.close ? `<div class="note">Spelled: <strong>${esc(term)}</strong></div>` : ""}
         ${extra ? `<div class="note">${extra}</div>` : ""}
         ${!correct && quiz.retryMissed ? `<div class="note">This one will come back in a few questions.</div>` : ""}
@@ -710,6 +894,10 @@
     const msg = pct === 100 ? "Perfect score! 🎉" : pct >= 90 ? "Excellent work!" : pct >= 75 ? "Nice job. Almost there." : pct >= 50 ? "Good start. Review the ones below and try again." : "Keep going. Try the study view, then quiz again.";
 
     const missedHTML = missed.map(({ item }) => {
+      if (item.type === "fill") {
+        return `<li><div class="t">${fillSentence(item, `<span class="fill-blank good">${esc(fillBlank(item).answers[0])}</span>`)}</div>
+          <div class="m">${esc(DECK[item.deck].title)} · ${esc(DECK[item.deck].slides[item.si].title)}</div></li>`;
+      }
       if (item.type === "mc") {
         return `<li><div class="t">${item.q.q}</div><div class="m">Answer: ${esc(item.q.answer)}</div></li>`;
       }

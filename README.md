@@ -15,6 +15,8 @@ A static study site for AP Biology anatomy units. It has no build step and no se
 - **Label it:** a numbered blank is highlighted and you name it, either by typing or by multiple choice. Small spelling slips are accepted and flagged. Filler words are optional, so "frontal" counts for "Frontal bone", and so are words in parentheses, so "articular cartilage" counts for "Articular (hyaline) cartilage".
 - **Find it:** you're given a term and tap where it goes on the diagram. If a term is labeled more than once, any of its spots counts.
 - **Concepts:** multiple-choice questions written from the slide text, plus generated "what does this term mean" questions.
+- **Slide notes** (Skeletal unit): fill-in-the-blank sentences from the written part of every slide, answered by typing or multiple choice. There's also a study view per deck where you tap blanks to reveal them. Notes live in `SLIDE_NOTES` in `js/skeletal/content.js`; `{answer|alternate}` marks a blank.
+- **Bone functions** (Skeletal unit): a quiz topic covering the five functions of bones and what specific bones and structures do. Pick only that topic to focus on it.
 - **Show answered:** a toggle during diagram questions that colors labels already answered in the quiz. Green means right on the first try, orange means right on a retry and red means missed.
 - **Repeat missed questions:** a home-page setting, on by default. A missed question comes back 3 questions later until it's answered right. Scores count first tries only.
 - **Missed items:** across sessions, anything answered wrong shows up under "Review what you missed" until it's answered right twice in a row. Progress is saved in the browser's localStorage, per device and per unit.
@@ -50,5 +52,5 @@ This needs Pillow (`pip install pillow`). Delete `images/*/debug_*.png` when you
 ## Adding a unit
 1. Put the figures in `source/<unit>/` and write `tools/spec_<unit>.py`. Copy `spec_skeletal.py`; each diagram needs a `section`.
 2. Add the unit name to `UNITS` in `tools/build_diagrams.py` and run the build.
-3. Write `js/<unit>/content.js`, with `window.UNIT` (sections, storage key), `GLOSSARY`, `ALIASES` and `CONCEPT_QUESTIONS`. Every diagram term needs a glossary entry.
+3. Write `js/<unit>/content.js`, with `window.UNIT` (sections, storage key), `GLOSSARY`, `ALIASES`, `CONCEPT_QUESTIONS` and, optionally, `SLIDE_NOTES`. Every diagram term needs a glossary entry. A section with no diagrams works as a questions-only topic.
 4. Copy `skeletal.html` to `<unit>.html`, point its scripts at the new unit, and add a card to `index.html`.
